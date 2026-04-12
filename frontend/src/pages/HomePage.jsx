@@ -6,7 +6,7 @@ import ProductCard from '../components/product/ProductCard';
 import { useCart } from '../context/CartContext';
 import { productAPI, settingAPI, categoryAPI } from '../services/api';
 import Skeleton from '../components/ui/Skeleton';
-import { Button } from '..';
+import { Button } from '../components/ui/Button';
 import { cn } from '../lib/utils';
 import { LinkCard } from '../components/ui/link-card';
 
