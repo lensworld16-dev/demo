@@ -51,17 +51,17 @@ export default function Navbar() {
         </div>
 
         <motion.header
-          className={`transition-all duration-300 ${
-            scrolled ? 'bg-white/90 backdrop-blur-xl shadow-sm border-b border-gray-100' : 'bg-transparent'
+          className={`transition-all duration-[600ms] ease-luxury ${
+            scrolled ? 'glass-premium border-b border-white/50' : 'bg-transparent'
           }`}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="flex items-center justify-between h-16 sm:h-20">
+            <div className="flex items-center justify-between h-14 sm:h-16">
               {/* Logo */}
               <Link to="/" className="flex items-center gap-2">
                 <motion.span
                   whileHover={{ scale: 1.05 }}
-                  className={`text-xl sm:text-2xl font-bold tracking-widest transition-colors ${
+                  className={`text-lg sm:text-xl font-bold tracking-[0.3em] transition-colors ${
                     scrolled ? 'text-gray-900' : 'text-gray-900'
                   }`}
                 >

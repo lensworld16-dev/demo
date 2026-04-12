@@ -1,18 +1,21 @@
+import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { HiOutlineHeart, HiHeart } from 'react-icons/hi';
+import { HiOutlineHeart, HiHeart, HiOutlineShoppingBag, HiLightningBolt } from 'react-icons/hi';
 import { formatPrice, getDiscountPercent } from '../../utils/helpers';
 import { useWishlist } from '../../context/WishlistContext';
-import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import toast from 'react-hot-toast';
+import { cn } from '../../lib/utils';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, aspect = "portrait", glowEffect = true, className }) {
   const { isInWishlist, toggleWishlist } = useWishlist();
-  const { user } = useAuth();
   const { addItem } = useCart();
   const navigate = useNavigate();
   
+  const [rotation, setRotation] = React.useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = React.useState(false);
+  const cardRef = React.useRef(null);
+
   const discount = getDiscountPercent(product.price, product.compare_price);
   const isWishlisted = isInWishlist(product.id);
   const imageUrl = product.thumbnail || product.images?.[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';
@@ -34,89 +37,145 @@ export default function ProductCard({ product }) {
     toggleWishlist(product);
   };
 
+  const handleMouseMove = (e) => {
+    if (cardRef.current && isHovered) {
+      const rect = cardRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      // Make rotation much smoother and more subtle (divide by 30 instead of 20)
+      const rotationX = (y - centerY) / 30;
+      const rotationY = -(x - centerX) / 30;
+      
+      setRotation({ x: rotationX, y: rotationY });
+    }
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setRotation({ x: 0, y: 0 });
+  };
+
+  const aspectClasses = {
+    portrait: "aspect-[3/4]",
+    landscape: "aspect-[4/3]",
+    square: "aspect-square",
+  };
+
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="bg-white group border border-gray-100 transition-all duration-500 flex flex-col h-full rounded-2xl overflow-hidden shadow-sm hover:shadow-xl"
-    >
-      {/* Image Container */}
-      <div className="relative aspect-square overflow-hidden bg-gray-50 shrink-0">
-        <Link to={`/product/${product.slug}`}>
-          <motion.img
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-            src={imageUrl}
-            alt={product.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </Link>
-
-        {/* Wishlist Button */}
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={handleToggleWishlist}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center z-10 hover:bg-white transition-all"
-        >
-          {isWishlisted ? (
-            <HiHeart className="w-4 h-4 text-[#C41E3A]" />
-          ) : (
-            <HiOutlineHeart className="w-4 h-4 text-gray-400" />
-          )}
-        </motion.button>
-
-        {/* Labels */}
-        <div className="absolute bottom-3 left-3 flex flex-col gap-1.5">
-           {product.is_featured && (
-            <span className="px-2 py-0.5 bg-gray-900 text-white text-[9px] font-bold uppercase tracking-wider">
-              Exclusive
-            </span>
-          )}
-          {discount > 0 && (
-            <span className="px-2 py-0.5 bg-[#C41E3A] text-white text-[9px] font-bold uppercase tracking-wider">
-              SAVE {discount}%
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Product Details */}
-      <div className="p-4 text-center flex flex-col flex-1">
-        <Link to={`/product/${product.slug}`} className="block flex-1">
-          <p className="text-[10px] text-[#C41E3A] font-bold uppercase tracking-widest mb-1.5">{product.category || 'Jewellery'}</p>
-          <h3 className="text-xs font-semibold text-gray-900 mb-2 line-clamp-2 uppercase tracking-tight h-8">
-            {product.name}
-          </h3>
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <span className="text-sm font-bold text-gray-900">{formatPrice(product.price)}</span>
-            {product.compare_price && product.compare_price > product.price && (
-              <span className="text-[10px] text-gray-400 line-through font-medium">{formatPrice(product.compare_price)}</span>
-            )}
-          </div>
-        </Link>
+    <div className={cn("fashion-card-container group w-full h-full", className)}>
+      <div
+        ref={cardRef}
+        className={cn(
+          "fashion-card relative overflow-hidden rounded-xl bg-white flex flex-col h-full",
+          glowEffect && "hover:shadow-2xl",
+          "border border-gray-100 transition-all duration-[400ms] ease-out"
+        )}
+        style={{ 
+          transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) scale(${isHovered ? 1.02 : 1})`,
+        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* The glass effect overlay */}
+        <div className="fashion-card-glass absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
         
-        {/* Professional Action Buttons */}
-        <div className="grid grid-cols-1 gap-2 mt-auto">
-          <div className="flex gap-2">
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={handleAddToCart}
-              className="flex-1 py-2.5 border border-gray-900 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all"
-            >
-              Add to Cart
-            </motion.button>
+        {/* Card main content */}
+        <div className="fashion-card-content relative z-20 flex flex-col overflow-hidden rounded-xl h-full">
+
+          {/* Quick Actions (Wishlist) */}
+          <div className="absolute top-3 right-3 flex flex-col gap-2 z-30 opacity-0 transform translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
             <button
-              onClick={handleBuyNow}
-              className="flex-1 py-2.5 bg-[#C41E3A] text-white text-[10px] font-bold uppercase tracking-widest hover:bg-[#8B0000] transition-colors"
+              onClick={handleToggleWishlist}
+              className="w-10 h-10 bg-white/95 backdrop-blur-md text-[hsl(220,26%,18%)] rounded-full flex items-center justify-center hover:bg-[hsl(220,26%,18%)] hover:text-white transition-colors shadow-lg"
+              aria-label="Toggle Wishlist"
             >
-              Buy Now
+              {isWishlisted ? (
+                <HiHeart className="w-5 h-5 text-[#C41E3A]" />
+              ) : (
+                <HiOutlineHeart className="w-5 h-5" />
+              )}
             </button>
           </div>
+
+          {/* Image section with parallax */}
+          <Link to={`/product/${product.slug}`} className="block relative overflow-hidden">
+            <div className={cn("parallax-image-container w-full bg-gray-50", aspectClasses[aspect])}>
+              <img
+                src={imageUrl}
+                alt={product.name}
+                className="parallax-image w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
+                loading="lazy"
+              />
+            </div>
+            
+            {/* Badges */}
+            <div className="absolute top-4 left-4 z-10 flex flex-col gap-3">
+              {product.is_featured && (
+                <div className="fashion-card-badge animate-float px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] bg-[hsl(39,100%,67%)] text-[hsl(220,26%,18%)] shadow-sm relative top-0 right-0 transform-none">
+                  Highlight
+                </div>
+              )}
+              {discount > 0 && (
+                <div className="fashion-card-badge px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] bg-[#C41E3A] text-white shadow-sm relative top-0 right-0 transform-none">
+                  -{discount}%
+                </div>
+              )}
+            </div>
+          </Link>
+
+          {/* Content section */}
+          <div className="p-3 sm:p-5 bg-white flex flex-col flex-grow transition-all duration-500 border-t border-transparent group-hover:border-gray-50 relative z-20">
+            <Link to={`/product/${product.slug}`} className="flex-grow flex flex-col">
+              <h3 className="font-heading text-sm sm:text-lg font-medium leading-tight tracking-tight animate-fadeIn text-gray-900 mb-1 line-clamp-2">
+                {product.name}
+              </h3>
+              
+              <p className="font-sans text-[9px] sm:text-[10px] uppercase tracking-[0.15em] text-gray-400 animate-fadeIn mb-2 sm:mb-3 font-semibold" style={{ animationDelay: '0.1s' }}>
+                {product.category || 'Curated Piece'}
+              </p>
+              
+              <div className="flex items-center gap-1.5 sm:gap-2 mt-auto animate-fadeIn" style={{ animationDelay: '0.2s' }}>
+                <p className="font-heading font-semibold text-sm sm:text-lg text-gray-900">
+                  {formatPrice(product.price)}
+                </p>
+                {product.compare_price && product.compare_price > product.price && (
+                  <span className="text-[10px] sm:text-xs text-gray-400 line-through tracking-wider font-medium">
+                    {formatPrice(product.compare_price)}
+                  </span>
+                )}
+              </div>
+            </Link>
+
+            {/* Action Buttons */}
+            <div className="mt-3 sm:mt-5 flex flex-col sm:flex-row gap-2 w-full animate-fadeIn" style={{ animationDelay: '0.3s' }}>
+              <button 
+                onClick={handleAddToCart}
+                className="relative rounded-full px-2 sm:px-4 py-2 sm:py-2.5 flex-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-widest border border-gray-200 text-gray-900 hover:bg-gray-50 flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-300"
+              >
+                <HiOutlineShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" />
+                Add to Bag
+              </button>
+              
+              <button 
+                onClick={handleBuyNow}
+                className="shine-effect relative rounded-full px-2 sm:px-4 py-2 sm:py-2.5 flex-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-widest bg-[#C41E3A] hover:bg-[#8B0000] text-white overflow-hidden hover:animate-shine flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-300 shadow-md hover:shadow-lg"
+              >
+                <HiLightningBolt className="w-3 h-3 sm:w-4 sm:h-4" />
+                Buy Now
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

@@ -52,3 +52,9 @@ export async function deleteImage(imageId) {
   await query('DELETE FROM images WHERE id = $1', [imageId]);
   return rows[0];
 }
+
+export async function deleteByPublicId(publicId) {
+  await cloudinary.uploader.destroy(publicId);
+  await query('DELETE FROM images WHERE public_id = $1', [publicId]);
+  return { public_id: publicId };
+}

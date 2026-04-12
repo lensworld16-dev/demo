@@ -9,6 +9,7 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -72,6 +73,10 @@ export const firebaseAuth = {
   updateProfile: (user, data) => {
     if (!auth) throw new Error('Firebase not configured.');
     return updateProfile(user, data);
+  },
+  resetPassword: (email) => {
+    if (!auth) throw new Error('Firebase not configured.');
+    return sendPasswordResetEmail(auth, email);
   },
 };
 

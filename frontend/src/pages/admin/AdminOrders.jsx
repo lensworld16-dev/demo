@@ -2,8 +2,18 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { orderAPI } from '../../services/api';
 import { formatPrice } from '../../utils/helpers';
-import Skeleton from '../../components/ui/Skeleton';
-import { HiOutlineUser, HiOutlineLocationMarker, HiOutlinePhone, HiOutlineMail, HiOutlineChevronDown, HiOutlineChevronUp, HiOutlineExternalLink } from 'react-icons/hi';
+import RippleWaveLoader from '../../components/ui/RippleWaveLoader';
+import { 
+  HiOutlineUser, 
+  HiOutlineLocationMarker, 
+  HiOutlinePhone, 
+  HiOutlineMail, 
+  HiOutlineChevronDown, 
+  HiOutlineChevronUp, 
+  HiOutlineExternalLink, 
+  HiOutlineTrash,
+  HiOutlineShoppingBag 
+} from 'react-icons/hi';
 import toast from 'react-hot-toast';
 
 const statusColors = {
@@ -22,18 +32,21 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await orderAPI.adminGetAll();
-        setOrders(data.orders || []);
-      } catch {
-        setOrders([]);
-      } finally {
-        setLoading(false);
-      }
+  const fetchOrders = async () => {
+    try {
+      const data = await orderAPI.adminGetAll();
+      setOrders(data.orders || []);
+    } catch (err) {
+      console.error('Failed to fetch orders:', err);
+      toast.error('Failed to load orders');
+      setOrders([]);
+    } finally {
+      setLoading(false);
     }
-    load();
+  };
+
+  useEffect(() => {
+    fetchOrders();
   }, []);
 
   const handleStatusChange = async (orderId, status) => {
@@ -41,18 +54,28 @@ export default function AdminOrders() {
       await orderAPI.updateStatus(orderId, status);
       setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status } : o)));
       toast.success('Status updated');
-    } catch {
-      toast.error('Failed to update');
+    } catch (err) {
+      toast.error('Failed to update status');
+    }
+  };
+
+  const handleDelete = async (orderId) => {
+    if (!window.confirm('Are you sure you want to delete this order? This action cannot be undone.')) return;
+    
+    try {
+      await orderAPI.delete(orderId);
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+      toast.success('Order deleted');
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete order');
     }
   };
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="h-10 w-48 bg-gray-100 rounded animate-pulse mb-6" />
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-40 w-full bg-white rounded-2xl border border-gray-100 animate-pulse" />
-        ))}
+      <div className="py-32 flex flex-col items-center justify-center">
+        <RippleWaveLoader />
+        <p className="mt-6 text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em] animate-pulse">Syncing Transaction Logs...</p>
       </div>
     );
   }
@@ -73,8 +96,14 @@ export default function AdminOrders() {
       ) : (
         <div className="space-y-6">
           {orders.map((order) => {
-            const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
-            const address = typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address;
+            let items = [];
+            let address = {};
+            try {
+              items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+              address = typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address;
+            } catch (e) {
+              console.error('Error parsing order data:', e);
+            }
             const isExpanded = expandedId === order.id;
 
             return (
@@ -109,16 +138,25 @@ export default function AdminOrders() {
                        <p className="text-sm font-bold text-gray-900">{formatPrice(order.total)}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <select
-                        value={order.status}
-                        onChange={(e) => { e.stopPropagation(); handleStatusChange(order.id, e.target.value); }}
-                        onClick={(e) => e.stopPropagation()}
-                        className={`px-4 py-2 text-[10px] font-bold rounded-full border border-transparent uppercase tracking-widest cursor-pointer outline-none ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}`}
-                      >
-                        {statuses.map((s) => (
-                          <option key={s} value={s}>{s.toUpperCase()}</option>
-                        ))}
-                      </select>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={order.status}
+                          onChange={(e) => { e.stopPropagation(); handleStatusChange(order.id, e.target.value); }}
+                          onClick={(e) => e.stopPropagation()}
+                          className={`px-4 py-2 text-[10px] font-bold rounded-full border border-transparent uppercase tracking-widest cursor-pointer outline-none ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}`}
+                        >
+                          {statuses.map((s) => (
+                            <option key={s} value={s}>{s.toUpperCase()}</option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDelete(order.id); }}
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all duration-200"
+                          title="Delete Order"
+                        >
+                          <HiOutlineTrash className="w-4 h-4" />
+                        </button>
+                      </div>
                       {isExpanded ? <HiOutlineChevronUp className="w-5 h-5 text-gray-400" /> : <HiOutlineChevronDown className="w-5 h-5 text-gray-400" />}
                     </div>
                   </div>
@@ -223,13 +261,5 @@ export default function AdminOrders() {
         </div>
       )}
     </div>
-  );
-}
-
-function HiOutlineShoppingBag(props) {
-  return (
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-    </svg>
   );
 }

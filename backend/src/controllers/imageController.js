@@ -37,3 +37,14 @@ export async function handleDelete(req, res, next) {
     next(err);
   }
 }
+
+export async function handleDeleteByPublicId(req, res, next) {
+  try {
+    const { public_id } = req.body;
+    if (!public_id) return res.status(400).json({ error: 'Public ID mandatory' });
+    await deleteByPublicId(public_id);
+    res.json({ success: true, message: 'Storage asset purged' });
+  } catch (err) {
+    next(err);
+  }
+}

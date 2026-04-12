@@ -104,3 +104,19 @@ export async function updateOrderStatus(req, res, next) {
     next(err);
   }
 }
+
+export async function deleteOrder(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { rowCount } = await query('DELETE FROM orders WHERE id = $1', [id]);
+    
+    if (rowCount === 0) {
+      throw new AppError('Order not found', 404);
+    }
+
+    res.json({ success: true, message: 'Order deleted successfully' });
+  } catch (err) {
+    next(err);
+  }
+}
+

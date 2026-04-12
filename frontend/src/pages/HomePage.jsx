@@ -6,17 +6,9 @@ import ProductCard from '../components/product/ProductCard';
 import { useCart } from '../context/CartContext';
 import { productAPI, settingAPI, categoryAPI } from '../services/api';
 import Skeleton from '../components/ui/Skeleton';
-
-const stagger = {
-  animate: { transition: { staggerChildren: 0.1 } },
-};
-
-const fadeUp = {
-  initial: { opacity: 0, y: 40 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] } },
-};
-
-
+import { Button } from '../components/ui/button';
+import { cn } from '../lib/utils';
+import { LinkCard } from '../components/ui/link-card';
 
 const perks = [
   { icon: HiOutlineTruck, title: 'Free Shipping', desc: 'On all orders in India' },
@@ -25,42 +17,96 @@ const perks = [
   { icon: HiOutlineSparkles, title: 'Fine Finish', desc: '14K-18K Gold plating' },
 ];
 
+const heroSlides = [
+  {
+    image: "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?auto=format&fit=crop&q=80&w=2000",
+    tagline: "ANTI-TARNISH & WATERPROOF",
+    title: "Timeless",
+    titleBold: "Elegance",
+    cta: "Shop Jewelry",
+    align: "center"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=2000",
+    tagline: "18K GOLD PLATED",
+    title: "Bold &",
+    titleBold: "Sophisticated",
+    cta: "Best Sellers",
+    align: "left"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1611085583191-a3b1ae84fd9b?auto=format&fit=crop&q=80&w=2000",
+    tagline: "LUXURY ESSENTIALS",
+    title: "Adorn",
+    titleBold: "Yourself",
+    cta: "Summer Collection",
+    align: "right"
+  }
+];
+
 export default function HomePage() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [activeHeroSlides, setActiveHeroSlides] = useState(heroSlides);
   const [featured, setFeatured] = useState([]);
   const [bestSellers, setBestSellers] = useState([]);
   const [categories, setCategories] = useState([]);
   const [config, setConfig] = useState({
-    hero_tagline: "ANTI-TARNISH & DEMI FINE JEWELLERY",
-    hero_title: "The Art of",
-    hero_title_bold: "Adornment",
-    hero_image: "/images/hero_banner.png",
-    hero_cta: "Shop Now",
     expertly_crafted_title: "The Art of Adornment",
     expertly_crafted_subtitle: "Expertly Crafted",
     expertly_crafted_description: "Every piece of Sajhnaa jewellery is a testament to timeless elegance and modern craftsmanship.",
-    best_sellers_title: "Our Best Sellers"
+    best_sellers_title: "Our Best Sellers",
+    best_sellers_subtitle: "Most Loved Pieces"
   });
   const [loading, setLoading] = useState(true);
   const { addItem } = useCart();
   const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
-  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
   
+  useEffect(() => {
+    if (activeHeroSlides.length > 0) {
+      const timer = setInterval(() => {
+        setCurrentSlide(prev => (prev + 1) % activeHeroSlides.length);
+      }, 6000);
+      return () => clearInterval(timer);
+    }
+  }, [activeHeroSlides.length]);
+
   useEffect(() => {
     async function load() {
       try {
-        const [featData, bestData, settingsData, catData] = await Promise.all([
+        const [featData, bestData, heroData, craftData, catData] = await Promise.all([
           productAPI.getAll({ featured: 'true', limit: 8 }),
           productAPI.getAll({ bestseller: 'true', limit: 4 }),
-          settingAPI.get('homepage'),
+          settingAPI.get('hero_slides'),
+          settingAPI.get('expertly_crafted'),
           categoryAPI.getAll()
         ]);
         
         setFeatured(featData.products || []);
         setBestSellers(bestData.products || []);
         setCategories(catData.categories || []);
-        if (settingsData.settings) {
-          setConfig(prev => ({ ...prev, ...settingsData.settings }));
+        
+        const ensureArray = (val) => {
+          if (!val) return [];
+          if (Array.isArray(val)) return val;
+          try {
+            const parsed = typeof val === 'string' ? JSON.parse(val) : val;
+            return Array.isArray(parsed) ? parsed : (parsed.value || []);
+          } catch { return []; }
+        };
+
+        if (heroData?.settings) {
+          const slides = ensureArray(heroData.settings);
+          if (slides.length > 0) setActiveHeroSlides(slides);
+        }
+        
+        if (craftData?.settings) {
+          const rawCraft = craftData.settings;
+          try {
+            const parsedCraft = typeof rawCraft === 'string' ? JSON.parse(rawCraft) : rawCraft;
+            setConfig(prev => ({ ...prev, ...(parsedCraft.value || parsedCraft) }));
+          } catch {
+            setConfig(prev => ({ ...prev, ...(rawCraft.value || rawCraft) }));
+          }
         }
       } catch (err) {
         console.error("Home load error:", err);
@@ -71,60 +117,127 @@ export default function HomePage() {
     load();
   }, []);
 
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+       <div className="w-16 h-16 border-4 border-gray-100 border-t-gray-900 rounded-full animate-spin mb-4" />
+       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Loading Luxury...</p>
+    </div>
+  );
+
   return (
-    <div className="bg-white">
-      {/* Hero Section - Giva Style */}
-      <section ref={heroRef} className="relative h-[550px] sm:h-[90vh] overflow-hidden">
-        <motion.div style={{ y: heroY }} className="absolute inset-0">
-          <img
-            src={config.hero_image}
-            alt="Jewellery Collection"
-            className="w-full h-full object-cover"
-          />
-          {/* Subtle overlay to keep contrast high if needed, but keeping it clean for Giva vibe */}
-          <div className="absolute inset-0 bg-black/5" />
-        </motion.div>
+    <div className="bg-white overflow-x-hidden">
+      {/* Hero Section - Luxury Animated Slider */}
+      <section ref={heroRef} className="relative h-[80vh] sm:h-screen w-full overflow-hidden bg-gray-900">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="absolute inset-0"
+          >
+            <img
+              src={activeHeroSlides[currentSlide]?.image}
+              alt="Luxury Banner"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+          </motion.div>
+        </AnimatePresence>
 
-        <div className="relative h-full flex items-center justify-center text-center px-4">
-           <motion.div
-              variants={stagger}
-              initial="initial"
-              animate="animate"
-              className="max-w-4xl"
-            >
-              <motion.div variants={fadeUp} className="mb-4">
-                <span className="text-sm font-bold tracking-[0.3em] text-gray-800 uppercase">
-                  Sajhnaa Essentials
-                </span>
-              </motion.div>
-              
-              <motion.h1
-                variants={fadeUp}
-                className="text-4xl sm:text-7xl lg:text-8xl font-light text-gray-900 tracking-tighter mb-6 italic"
+        <div className="absolute inset-0 flex items-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-12 w-full">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentSlide}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className={cn(
+                  "max-w-3xl",
+                  activeHeroSlides[currentSlide]?.align === 'center' ? 'mx-auto text-center' : 
+                  activeHeroSlides[currentSlide]?.align === 'right' ? 'ml-auto text-right' : 'text-left'
+                )}
               >
-                {config.hero_title} <span className="font-bold not-italic">{config.hero_title_bold}</span>
-              </motion.h1>
+                <motion.div
+                  variants={{
+                    initial: { opacity: 0, y: 20 },
+                    animate: { opacity: 1, y: 0 },
+                    exit: { opacity: 0, y: -20 }
+                  }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="mb-4 sm:mb-6 flex items-center justify-center lg:justify-start gap-4"
+                  style={{ justifyContent: activeHeroSlides[currentSlide]?.align === 'center' ? 'center' : activeHeroSlides[currentSlide]?.align === 'right' ? 'flex-end' : 'flex-start' }}
+                >
+                  <div className="h-px w-6 sm:w-8 bg-white/40" />
+                  <span className="text-[10px] sm:text-sm font-bold tracking-[0.3em] sm:tracking-[0.4em] text-white/80 uppercase">
+                    {activeHeroSlides[currentSlide]?.tagline}
+                  </span>
+                  <div className="h-px w-6 sm:w-8 bg-white/40" />
+                </motion.div>
 
-              <motion.div variants={fadeUp} className="flex flex-col items-center gap-6">
-                <p className="text-sm font-semibold text-gray-600 tracking-[0.2em] uppercase">
-                  {config.hero_tagline}
-                </p>
-                <div className="flex gap-4">
-                  <Link to="/shop">
-                    <Button size="lg" className="rounded-none px-12 uppercase tracking-widest text-xs font-bold bg-gray-900 hover:bg-gray-800">
-                      {config.hero_cta}
+                <motion.h1
+                  variants={{
+                    initial: { opacity: 0, y: 30 },
+                    animate: { opacity: 1, y: 0 },
+                    exit: { opacity: 0, y: -30 }
+                  }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                  className="text-4xl xs:text-5xl sm:text-8xl lg:text-9xl font-light text-white tracking-tighter mb-6 sm:mb-8 italic leading-[1.1] sm:leading-none"
+                >
+                  {activeHeroSlides[currentSlide]?.title || activeHeroSlides[currentSlide]?.titlePart1} <br/> 
+                  <span className="font-bold not-italic block mt-1 sm:mt-2 text-white drop-shadow-2xl">
+                    {activeHeroSlides[currentSlide]?.titleBold || activeHeroSlides[currentSlide]?.titlePart2}
+                  </span>
+                </motion.h1>
+
+                <motion.div
+                  variants={{
+                    initial: { opacity: 0, y: 20 },
+                    animate: { opacity: 1, y: 0 },
+                    exit: { opacity: 0, y: -20 }
+                  }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
+                  className="flex flex-col gap-8"
+                  style={{ alignItems: activeHeroSlides[currentSlide]?.align === 'center' ? 'center' : activeHeroSlides[currentSlide]?.align === 'right' ? 'flex-end' : 'flex-start' }}
+                >
+                  <Link to={activeHeroSlides[currentSlide]?.link || "/shop"}>
+                    <Button size="lg" className="rounded-none px-6 sm:px-16 h-12 sm:h-16 border-2 border-white/20 bg-white text-black hover:bg-transparent hover:text-white hover:border-white transition-all duration-500 uppercase tracking-[0.2em] text-[10px] sm:text-xs font-black shadow-2xl">
+                      {activeHeroSlides[currentSlide]?.cta || "Discovery Pool"}
                     </Button>
                   </Link>
-                </div>
+                </motion.div>
               </motion.div>
-           </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Slide Indicators */}
+        <div className="absolute bottom-6 sm:bottom-12 left-1/2 -translate-x-1/2 flex gap-3 sm:gap-4 z-50">
+          {activeHeroSlides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentSlide(i)}
+              className="group flex flex-col items-center gap-1 sm:gap-2"
+            >
+              <div className={cn(
+                "h-0.5 sm:h-1 transition-all duration-500 rounded-full",
+                currentSlide === i ? "w-8 sm:w-12 bg-white" : "w-4 sm:w-6 bg-white/30 group-hover:bg-white/50"
+              )} />
+              <span className={cn(
+                "text-[8px] sm:text-[10px] font-bold tracking-widest transition-opacity duration-500",
+                currentSlide === i ? "opacity-100 text-white" : "opacity-0"
+              )}>0{i + 1}</span>
+            </button>
+          ))}
         </div>
       </section>
 
       {/* Perks Bar - Professional & Clean */}
-      <section className="py-12 bg-[#F9F9FB] border-y border-gray-100">
+      <section className="py-8 sm:py-12 bg-[#F9F9FB] border-y border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-4 gap-2 md:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {perks.map((perk, i) => (
               <motion.div
                 key={perk.title}
@@ -162,32 +275,22 @@ export default function HomePage() {
             <div className="w-20 h-0.5 bg-accent-gold mx-auto" />
           </motion.div>
 
-          <div className="grid grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {categories.map((cat, i) => (
               <motion.div
-                key={cat.slug}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                key={cat.id || cat.slug}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="group relative aspect-square overflow-hidden cursor-pointer"
+                className="col-span-1"
               >
-                <Link to={`/shop?category=${cat.slug}`}>
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-2 sm:p-6 border-[3px] sm:border-[12px] border-transparent group-hover:border-white/20 transition-all duration-500">
-                    <span className="text-white text-[8px] sm:text-xs font-bold tracking-widest uppercase mb-1 opacity-0 group-hover:opacity-100 transition-opacity translate-y-1 group-hover:translate-y-0 duration-500">
-                      View
-                    </span>
-                    <h3 className="text-white text-[10px] sm:text-3xl font-bold tracking-tight uppercase text-center leading-tight">
-                      {cat.name}
-                    </h3>
-                  </div>
-                </Link>
+                <LinkCard
+                  title={cat.name}
+                  description={cat.description || "Explore our exclusive collection of premium crafted jewellery."}
+                  imageUrl={cat.image}
+                  href={`/shop?category=${cat.slug}`}
+                />
               </motion.div>
             ))}
           </div>
@@ -215,7 +318,7 @@ export default function HomePage() {
           </motion.div>
 
           {loading ? (
-             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="space-y-4">
                   <Skeleton className="aspect-square w-full" />
@@ -225,7 +328,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
               {featured.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -259,7 +362,7 @@ export default function HomePage() {
           </motion.div>
 
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="space-y-4">
                   <Skeleton className="aspect-square w-full" />
@@ -269,7 +372,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
               {bestSellers.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -296,7 +399,7 @@ export default function HomePage() {
              <p className="text-gray-500 text-lg leading-relaxed mb-12">
                 Our demi-fine jewellery is crafted with 18K gold plating on surgical-grade stainless steel, ensuring it's 100% waterproof, sweatproof, and anti-tarnish. Luxury made accessible for your everyday moments.
              </p>
-             <div className="grid grid-cols-3 gap-8">
+             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
                 <div>
                    <p className="text-2xl font-bold text-gray-900 mb-1">100%</p>
                    <p className="text-[10px] uppercase tracking-widest text-gray-500">Waterproof</p>
@@ -317,24 +420,3 @@ export default function HomePage() {
   );
 }
 
-// Internal helper for clean code
-function Button({ children, className = '', variant = 'primary', size = 'md', ...props }) {
-  const base = "inline-flex items-center justify-center transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed";
-  
-  const variants = {
-    primary: "bg-gray-900 text-white hover:bg-gray-800",
-    outline: "border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white",
-  };
-
-  const sizes = {
-    sm: "px-4 py-2 text-xs",
-    md: "px-6 py-3 text-sm",
-    lg: "px-10 py-4 text-sm",
-  };
-
-  return (
-    <button className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} {...props}>
-      {children}
-    </button>
-  );
-}

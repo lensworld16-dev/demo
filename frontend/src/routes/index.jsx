@@ -24,6 +24,9 @@ import AdminEditProduct from '../pages/admin/AdminEditProduct';
 import AdminOrders from '../pages/admin/AdminOrders';
 import AdminHomePage from '../pages/admin/AdminHomePage';
 import AdminCategories from '../pages/admin/AdminCategories';
+import AdminUsers from '../pages/admin/AdminUsers';
+import AdminCoupons from '../pages/admin/AdminCoupons';
+import AdminReviews from '../pages/admin/AdminReviews';
 
 const router = createBrowserRouter([
   {
@@ -74,9 +77,9 @@ const router = createBrowserRouter([
           { path: 'add-product', element: <AdminAddProduct /> },
           { path: 'edit-product/:id', element: <AdminEditProduct /> },
           { path: 'orders', element: <AdminOrders /> },
-          { path: 'users', element: <div className="p-8 text-center bg-white rounded-2xl border border-gray-100"><h2 className="text-xl font-bold mb-2">Customers Management</h2><p className="text-gray-500">Coming Soon: Track your customer base and their activities.</p></div> },
-          { path: 'coupons', element: <div className="p-8 text-center bg-white rounded-2xl border border-gray-100"><h2 className="text-xl font-bold mb-2">Discount Coupons</h2><p className="text-gray-500">Coming Soon: Create and manage promotional codes.</p></div> },
-          { path: 'reviews', element: <div className="p-8 text-center bg-white rounded-2xl border border-gray-100"><h2 className="text-xl font-bold mb-2">Product Reviews</h2><p className="text-gray-500">Coming Soon: Moderate and view customer ratings.</p></div> },
+          { path: 'users', element: <AdminUsers /> },
+          { path: 'coupons', element: <AdminCoupons /> },
+          { path: 'reviews', element: <AdminReviews /> },
         ],
       },
     ],

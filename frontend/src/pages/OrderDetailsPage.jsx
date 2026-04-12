@@ -48,6 +48,22 @@ export default function OrderDetailsPage() {
   const currentStatusIndex = steps.findIndex(s => s.status === order.status?.toLowerCase());
   const activeIndex = currentStatusIndex === -1 ? 0 : currentStatusIndex;
 
+  // Safe parsing for items and address
+  let items = [];
+  try {
+    items = typeof order.items === 'string' ? JSON.parse(order.items) : (order.items || []);
+  } catch (e) {
+    console.error('Error parsing order items:', e);
+  }
+
+  const shipping_address = typeof order.shipping_address === 'string' 
+    ? JSON.parse(order.shipping_address || '{}') 
+    : (order.shipping_address || {});
+
+  const orderTotal = Number(order.total || 0);
+  const orderSubtotal = Number(order.subtotal || orderTotal - (Number(order.shipping) || 0));
+  const shippingFee = Number(order.shipping || 0);
+
   return (
     <div className="min-h-screen bg-[#FDFDFC] py-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
@@ -102,21 +118,11 @@ export default function OrderDetailsPage() {
                    <h3 className="font-bold text-sm uppercase tracking-widest">Shipping To</h3>
                 </div>
                 <div className="text-sm text-gray-500 leading-relaxed pl-8">
-                   {(() => {
-                     const addr = typeof order.shipping_address === 'string' 
-                        ? JSON.parse(order.shipping_address || '{}') 
-                        : (order.shipping_address || {});
-                     
-                     return (
-                        <>
-                           <p className="font-bold text-gray-900">{addr.name || order.shipping_name || 'Customer'}</p>
-                           <p>{addr.address || 'Address not provided'}</p>
-                           <p>{addr.city}, {addr.state}</p>
-                           <p className="mt-1 font-bold">{addr.zip || order.shipping_pincode}</p>
-                           {addr.phone && <p className="mt-1">Phone: {addr.phone}</p>}
-                        </>
-                     );
-                   })()}
+                  <p className="font-bold text-gray-900">{shipping_address.name || 'Customer'}</p>
+                  <p>{shipping_address.address || 'Address not provided'}</p>
+                  <p>{shipping_address.city}, {shipping_address.state}</p>
+                  <p className="mt-1 font-bold">{shipping_address.zip}</p>
+                  {shipping_address.phone && <p className="mt-1">Phone: {shipping_address.phone}</p>}
                 </div>
              </div>
              <div className="space-y-4">
@@ -125,9 +131,11 @@ export default function OrderDetailsPage() {
                    <h3 className="font-bold text-sm uppercase tracking-widest">Payment</h3>
                 </div>
                 <div className="text-sm text-gray-500 pl-8">
-                   <p className="font-bold text-emerald-600 uppercase tracking-widest text-[10px]">Prepaid via Razorpay</p>
+                   <p className="font-bold text-emerald-600 uppercase tracking-widest text-[10px]">
+                     {order.payment_method === 'cod' ? 'Cash on Delivery' : 'Prepaid via Razorpay'}
+                   </p>
                    <p className="mt-1">Transaction ID:</p>
-                   <p className="font-mono text-[10px] break-all">{order.razorpay_payment_id || 'RZP_MOCK_12345'}</p>
+                   <p className="font-mono text-[10px] break-all">{order.payment_id || order.razorpay_payment_id || 'N/A'}</p>
                 </div>
              </div>
              <div className="space-y-4">
@@ -137,16 +145,16 @@ export default function OrderDetailsPage() {
                 </div>
                 <div className="space-y-2 pl-8">
                    <div className="flex justify-between text-xs">
-                      <span className="text-gray-400">Items ({order.items?.length})</span>
-                      <span className="font-bold">{formatPrice(order.total_amount - (order.shipping_fee || 0))}</span>
+                      <span className="text-gray-400">Items ({items.length})</span>
+                      <span className="font-bold">{formatPrice(orderSubtotal)}</span>
                    </div>
                    <div className="flex justify-between text-xs">
                       <span className="text-gray-400">Shipping</span>
-                      <span className="text-emerald-500 font-bold">FREE</span>
+                      <span className="text-emerald-500 font-bold">{shippingFee > 0 ? formatPrice(shippingFee) : 'FREE'}</span>
                    </div>
                    <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-50">
                       <span>Total</span>
-                      <span>{formatPrice(order.total_amount)}</span>
+                      <span>{formatPrice(orderTotal)}</span>
                    </div>
                 </div>
              </div>
@@ -155,10 +163,10 @@ export default function OrderDetailsPage() {
           <div className="bg-[#FAF9F6] rounded-[2rem] p-8">
              <h3 className="font-bold text-sm uppercase tracking-[0.2em] text-gray-900 mb-6">Manifest Items</h3>
              <div className="space-y-4">
-                {order.items?.map((item, i) => (
+                {items.map((item, i) => (
                    <div key={i} className="flex items-center justify-between pb-4 border-b border-white last:border-0 last:pb-0">
                       <div className="flex items-center gap-4">
-                         <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-md">
+                         <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-md bg-white">
                             <img src={item.thumbnail} className="w-full h-full object-cover" alt="" />
                          </div>
                          <div>

@@ -12,6 +12,7 @@ import imageRoutes from './routes/imageRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import settingRoutes from './routes/settingRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
+import couponRoutes from './routes/couponRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -50,6 +51,7 @@ app.use('/api/images', imageRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/settings', settingRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Error handling
 app.use(notFound);

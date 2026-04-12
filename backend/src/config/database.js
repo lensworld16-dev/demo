@@ -93,6 +93,35 @@ export async function initDatabase() {
         folder VARCHAR(255),
         created_at TIMESTAMPTZ DEFAULT now()
       );
+
+      CREATE TABLE IF NOT EXISTS coupons (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        code VARCHAR(50) UNIQUE NOT NULL,
+        discount_type VARCHAR(20) NOT NULL, -- 'percentage' or 'fixed'
+        discount_value DECIMAL(12,2) NOT NULL,
+        min_order_value DECIMAL(12,2) DEFAULT 0,
+        max_discount DECIMAL(12,2),
+        starts_at TIMESTAMPTZ DEFAULT now(),
+        expires_at TIMESTAMPTZ,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMPTZ DEFAULT now()
+      );
+
+        CREATE TABLE IF NOT EXISTS reviews (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          user_id UUID REFERENCES users(id),
+          product_id UUID REFERENCES products(id),
+          rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+          comment TEXT,
+          is_published BOOLEAN DEFAULT true,
+          created_at TIMESTAMPTZ DEFAULT now()
+        );
+
+        CREATE TABLE IF NOT EXISTS site_settings (
+          key TEXT PRIMARY KEY,
+          value JSONB,
+          updated_at TIMESTAMP DEFAULT now()
+        );
     `);
 
     // Migration logic (Individual queries because CockroachDB/Postgres anonymous blocks often restrict DDL)

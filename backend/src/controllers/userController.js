@@ -46,3 +46,13 @@ export async function getDashboardStats(req, res, next) {
     next(err);
   }
 }
+
+export async function getAllUsers(req, res, next) {
+  try {
+    const { rows } = await query('SELECT * FROM users ORDER BY created_at DESC');
+    res.json({ success: true, users: rows });
+  } catch (err) {
+    next(err);
+  }
+}
+

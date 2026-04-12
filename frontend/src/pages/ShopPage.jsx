@@ -176,12 +176,12 @@ export default function ShopPage() {
 
         {/* Products Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-x-6 sm:gap-y-10">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="space-y-3">
-                <Skeleton className="aspect-[4/5] w-full" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
+              <div key={i} className="space-y-4">
+                <Skeleton className="aspect-[4/5] w-full rounded-none" />
+                <Skeleton className="h-4 w-3/4 rounded-none" />
+                <Skeleton className="h-4 w-1/2 rounded-none" />
               </div>
             ))}
           </div>
@@ -189,14 +189,22 @@ export default function ShopPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-24"
+            className="text-center py-32"
           >
-            <HiOutlineSearch className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-500">Try adjusting your search or filters</p>
+            <HiOutlineSearch className="w-12 h-12 mx-auto text-gray-300 mb-6" />
+            <h3 className="text-sm font-bold tracking-widest uppercase text-gray-900 mb-2">No Curations Found</h3>
+            <p className="text-gray-500 text-xs tracking-wider">Try adjusting your filters or search terms</p>
           </motion.div>
         ) : (
-          <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+            }}
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-x-6 sm:gap-y-10"
+          >
             <AnimatePresence>
               {products.map((product) => (
                 <ProductCard

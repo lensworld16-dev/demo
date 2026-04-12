@@ -57,6 +57,7 @@ export const orderAPI = {
   getById: (id) => api.get(`/orders/${id}`),
   adminGetAll: () => api.get('/orders/admin/all'),
   updateStatus: (id, status) => api.put(`/orders/${id}/status`, { status }),
+  delete: (id) => api.delete(`/orders/${id}`),
 };
 
 // Wishlist APIs
@@ -86,13 +87,21 @@ export const imageAPI = {
   },
   getAll: (folder) => api.get('/images', { params: { folder } }),
   delete: (id) => api.delete(`/images/${id}`),
+  purgeByPublicId: (public_id) => api.post('/images/purge-by-public-id', { public_id }),
 };
 
 // User APIs
+export const couponAPI = {
+  adminGetAll: () => api.get('/coupons/admin/all'),
+  create: (data) => api.post('/coupons', data),
+  delete: (id) => api.delete(`/coupons/${id}`),
+};
+
 export const userAPI = {
   getProfile: () => api.get('/users/profile'),
   updateProfile: (data) => api.put('/users/profile', data),
   getDashboard: () => api.get('/users/admin/dashboard'),
+  getAll: () => api.get('/users/admin/all'),
 };
 
 export default api;

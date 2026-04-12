@@ -37,8 +37,15 @@ export function AuthProvider({ children }) {
   const signInWithGoogle = () => firebaseAuth.signInWithGoogle();
   const logout = () => firebaseAuth.signOut();
 
+  const resetPassword = (email) => firebaseAuth.resetPassword(email);
+
   const isAdmin = dbUser?.role === 'admin';
-  console.log('Auth Debug:', { hasUser: !!user, role: dbUser?.role, isAdmin });
+  
+  useEffect(() => {
+    if (dbUser) {
+      console.log(`%c 🛡️ AUTH STATUS: User=${dbUser.email} | Role=${dbUser.role} | isAdmin=${isAdmin}`, 'background: #222; color: #ffeb3b; padding: 5px; font-weight: bold;');
+    }
+  }, [dbUser, isAdmin]);
 
   return (
     <AuthContext.Provider value={{
@@ -49,6 +56,7 @@ export function AuthProvider({ children }) {
       signIn,
       signInWithGoogle,
       logout,
+      resetPassword,
       isAdmin,
     }}>
       {children}

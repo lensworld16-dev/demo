@@ -63,9 +63,30 @@ export async function updateCategory(req, res, next) {
 export async function deleteCategory(req, res, next) {
   try {
     const { id } = req.params;
-    const { rows } = await query('DELETE FROM categories WHERE id = $1 RETURNING *', [id]);
-    if (!rows.length) throw new AppError('Category not found', 404);
-    res.json({ success: true, message: 'Category deleted' });
+    
+    // 1. Get category to find image path
+    const { rows: findRows } = await query('SELECT image FROM categories WHERE id = $1', [id]);
+    if (!findRows.length) throw new AppError('Category not found', 404);
+    
+    const imageUrl = findRows[0].image;
+    
+    // 2. Cleanup Cloudinary if image exists
+    if (imageUrl) {
+      const { rows: imgRows } = await query('SELECT public_id FROM images WHERE secure_url = $1 OR url = $1', [imageUrl]);
+      if (imgRows.length > 0) {
+        try {
+          const { deleteByPublicId } = await import('../services/imageService.js');
+          await deleteByPublicId(imgRows[0].public_id);
+          console.log(`🗑️ Purged Category Image: ${imgRows[0].public_id}`);
+        } catch (e) {
+          console.error('Cloudinary purge failed', e);
+        }
+      }
+    }
+
+    // 3. Final Delete
+    await query('DELETE FROM categories WHERE id = $1', [id]);
+    res.json({ success: true, message: 'Category and assets purged from existence' });
   } catch (err) {
     next(err);
   }
