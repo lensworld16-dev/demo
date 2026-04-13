@@ -5,20 +5,33 @@ const API_BASE = (() => {
   const envUrl = import.meta.env.VITE_API_URL;
   const hostname = window.location.hostname || 'localhost';
   
-  // If it's a production build and we have a production URL in ENV, use it
-  if (envUrl && !envUrl.includes('localhost') && !envUrl.match(/\d+\.\d+\.\d+\.\d+/)) {
-    return envUrl;
-  }
-
   // Determine if we're in a local environment
   const isLocal = hostname === 'localhost' || 
                   hostname === '127.0.0.1' || 
                   hostname.match(/\d+\.\d+\.\d+\.\d+/);
                   
-  const finalBase = isLocal ? `http://${hostname}:5000` : (envUrl || '');
+  // If we have an envUrl, check if it's usable here
+  // We only use envUrl if:
+  // 1. We are local and it's a local URL
+  // 2. We are on production and it's a remote URL
+  const isEnvUrlLocal = envUrl?.includes('localhost') || envUrl?.match(/\d+\.\d+\.\d+\.\d+/);
   
+  let finalBase = '';
+  
+  if (isLocal) {
+    // Local development: Priority -> EnvUrl (if local) -> Localhost:5000 fallback
+    finalBase = (envUrl && isEnvUrlLocal) ? envUrl : `http://${hostname}:5000`;
+  } else {
+    // Production: We MUST have a remote URL. Never use localhost here.
+    finalBase = (envUrl && !isEnvUrlLocal) ? envUrl : '';
+  }
+  
+  if (!finalBase && !isLocal) {
+    console.error('⚠️ PRODUCTION API URL MISSING: Please set VITE_API_URL in your deployment settings.');
+  }
+
   if (process.env.NODE_ENV !== 'production') {
-    console.log(`%c 🛰️ API CONNECTED TO: ${finalBase}`, 'background: #000; color: #00ff00; padding: 2px; font-weight: bold;');
+    console.log(`%c 🛰️ API CONNECTED TO: ${finalBase || 'NOT CONFIGURED'}`, 'background: #000; color: #00ff00; padding: 2px; font-weight: bold;');
   }
   
   return finalBase;
