@@ -43,7 +43,15 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 
-// Health check
+// Health check & Root
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'Sajhnaa API is live', 
+    message: 'Connectivity established successfully',
+    timestamp: new Date().toISOString() 
+  });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
