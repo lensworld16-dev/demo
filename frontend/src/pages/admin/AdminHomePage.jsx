@@ -68,7 +68,16 @@ export default function AdminHomePage() {
     titlePart2: "",
     cta: "",
     link: "/shop",
-    align: "center"
+    align: "center",
+    textColor: "light",
+    // New Studio Controls
+    titleSize: 80,
+    taglineSize: 14,
+    customTextColor: "#ffffff",
+    buttonBg: "#ffffff",
+    buttonText: "#000000",
+    top: 50, // Top %
+    left: 50  // Left %
   });
 
   useEffect(() => {
@@ -134,13 +143,16 @@ export default function AdminHomePage() {
   };
 
   const handleSlideFormChange = (e) => {
-    const { name, value } = e.target;
-    setSlideForm(prev => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    setSlideForm(prev => ({ 
+      ...prev, 
+      [name]: type === 'range' ? parseFloat(value) : value 
+    }));
   };
 
   const addOrUpdateSlide = () => {
-    if (!slideForm.image || !slideForm.titlePart1) {
-      return toast.error("Visual and Primary Title are mandatory");
+    if (!slideForm.image) {
+      return toast.error("Visual backdrop is mandatory");
     }
 
     let newSlides;
@@ -154,7 +166,10 @@ export default function AdminHomePage() {
 
     setHeroSlides(newSlides);
     saveHeroSlides(newSlides);
-    setSlideForm({ image: "", tagline: "", titlePart1: "", titlePart2: "", cta: "", link: "/shop", align: "center" });
+    setSlideForm({ 
+      image: "", tagline: "", titlePart1: "", titlePart2: "", cta: "", link: "/shop", align: "center", textColor: "light",
+      titleSize: 80, taglineSize: 14, customTextColor: "#ffffff", buttonBg: "#ffffff", buttonText: "#000000", top: 50, left: 50
+    });
   };
 
   const deleteSlide = async (index) => {
@@ -285,15 +300,32 @@ export default function AdminHomePage() {
                        </div>
                        <div className="space-y-2">
                           <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Text Alignment</label>
+                          <div className="flex bg-gray-50 rounded-2xl p-1 gap-1">
+                            {['left', 'center', 'right'].map((a) => (
+                              <button
+                                key={a}
+                                onClick={() => setSlideForm(prev => ({ ...prev, align: a }))}
+                                className={cn(
+                                  "flex-1 py-3 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all",
+                                  slideForm.align === a ? "bg-white text-gray-900 shadow-sm" : "text-gray-400 hover:text-gray-600"
+                                )}
+                              >
+                                {a}
+                              </button>
+                            ))}
+                          </div>
+                       </div>
+                       <div className="space-y-2">
+                          <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Color Preset</label>
                           <select 
-                            name="align" 
-                            value={slideForm.align} 
+                            name="textColor" 
+                            value={slideForm.textColor || 'light'} 
                             onChange={handleSlideFormChange}
                             className="w-full px-6 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-gray-900 rounded-2xl transition-all text-xs font-bold uppercase tracking-widest outline-none appearance-none cursor-pointer"
                           >
-                            <option value="left">Left Aligned</option>
-                            <option value="center">Center Aligned</option>
-                            <option value="right">Right Aligned</option>
+                            <option value="light">Light Mode (Default)</option>
+                            <option value="dark">Dark Mode (Default)</option>
+                            <option value="custom">Custom RGB Studio</option>
                           </select>
                        </div>
                     </div>
@@ -323,7 +355,7 @@ export default function AdminHomePage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                        <div className="space-y-2">
-                          <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Action Button</label>
+                          <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Action Button Text</label>
                           <input 
                             name="cta" 
                             value={slideForm.cta} 
@@ -343,23 +375,135 @@ export default function AdminHomePage() {
                           />
                        </div>
                     </div>
+
+                    {/* Studio Advanced Controls */}
+                    <AnimatePresence>
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="bg-gray-950 rounded-[2rem] p-6 space-y-8"
+                      >
+                         <h4 className="text-[8px] font-black text-white/40 uppercase tracking-[0.4em] flex items-center gap-2">
+                           Visual Studio Engine <div className="h-px flex-1 bg-white/10" />
+                         </h4>
+                         
+                         <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-3">
+                               <div className="flex justify-between">
+                                  <label className="text-[8px] font-black text-white/60 uppercase tracking-widest">Title Size</label>
+                                  <span className="text-[8px] font-mono text-emerald-400">{slideForm.titleSize}px</span>
+                               </div>
+                               <input type="range" name="titleSize" min="20" max="150" value={slideForm.titleSize} onChange={handleSlideFormChange} className="w-full accent-white" />
+                            </div>
+                            <div className="space-y-3">
+                               <div className="flex justify-between">
+                                  <label className="text-[8px] font-black text-white/60 uppercase tracking-widest">Tagline Size</label>
+                                  <span className="text-[8px] font-mono text-emerald-400">{slideForm.taglineSize}px</span>
+                               </div>
+                               <input type="range" name="taglineSize" min="8" max="40" value={slideForm.taglineSize} onChange={handleSlideFormChange} className="w-full accent-white" />
+                            </div>
+                         </div>
+
+                         <div className="grid grid-cols-3 gap-6">
+                            <div className="space-y-2">
+                               <label className="text-[8px] font-black text-white/60 uppercase tracking-widest flex items-center gap-2">
+                                 Text RGB <div className="w-2 h-2 rounded-full" style={{ background: slideForm.customTextColor }} />
+                               </label>
+                               <input type="color" name="customTextColor" value={slideForm.customTextColor} onChange={handleSlideFormChange} className="w-full h-10 bg-white/5 border-none rounded-lg cursor-pointer" />
+                            </div>
+                            <div className="space-y-2">
+                               <label className="text-[8px] font-black text-white/60 uppercase tracking-widest flex items-center gap-2">
+                                 Btn Bg <div className="w-2 h-2 rounded-full" style={{ background: slideForm.buttonBg }} />
+                               </label>
+                               <input type="color" name="buttonBg" value={slideForm.buttonBg} onChange={handleSlideFormChange} className="w-full h-10 bg-white/5 border-none rounded-lg cursor-pointer" />
+                            </div>
+                            <div className="space-y-2">
+                               <label className="text-[8px] font-black text-white/60 uppercase tracking-widest flex items-center gap-2">
+                                 Btn Text <div className="w-2 h-2 rounded-full" style={{ background: slideForm.buttonText }} />
+                               </label>
+                               <input type="color" name="buttonText" value={slideForm.buttonText} onChange={handleSlideFormChange} className="w-full h-10 bg-white/5 border-none rounded-lg cursor-pointer" />
+                            </div>
+                         </div>
+
+                         <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-3">
+                               <div className="flex justify-between">
+                                  <label className="text-[8px] font-black text-white/60 uppercase tracking-widest">Vertical Position (Top %)</label>
+                                  <span className="text-[8px] font-mono text-amber-400">{slideForm.top}%</span>
+                               </div>
+                               <input type="range" name="top" min="0" max="100" step="1" value={slideForm.top} onChange={handleSlideFormChange} className="w-full accent-amber-400" />
+                            </div>
+                            <div className="space-y-3">
+                               <div className="flex justify-between">
+                                  <label className="text-[8px] font-black text-white/60 uppercase tracking-widest">Horizontal Position (Left %)</label>
+                                  <span className="text-[8px] font-mono text-amber-400">{slideForm.left}%</span>
+                               </div>
+                               <input type="range" name="left" min="0" max="100" step="1" value={slideForm.left} onChange={handleSlideFormChange} className="w-full accent-amber-400" />
+                            </div>
+                         </div>
+                      </motion.div>
+                    </AnimatePresence>
                  </div>
 
-                 <div className="space-y-2">
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Visual Backdrop</label>
-                    <div className="group relative aspect-video rounded-[2.5rem] overflow-hidden bg-gray-100 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center transition-all hover:border-gray-900 cursor-pointer">
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
+                      Visual Backdrop & Dynamic Preview
+                      <span className="text-[8px] font-black text-emerald-500 animate-pulse">Live Tracking Active</span>
+                    </label>
+                    <div className="group relative aspect-video rounded-[2.5rem] overflow-hidden bg-gray-900 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center transition-all hover:border-gray-900 shadow-2xl">
                        {slideForm.image ? (
                          <>
-                           <img src={slideForm.image} alt="Preview" className="w-full h-full object-cover" />
-                           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                           <img src={slideForm.image} alt="Preview" className="w-full h-full object-cover opacity-60" />
+                           
+                           <div className="absolute inset-0 pointer-events-none">
+                              <div 
+                                className="absolute flex flex-col gap-2 w-full transition-all duration-300"
+                                style={{ 
+                                  top: `${slideForm.top}%`,
+                                  left: `${slideForm.left}%`,
+                                  transform: 'translate(-50%, -50%)', // Anchor to center of text box
+                                  alignItems: slideForm.align === 'center' ? 'center' : slideForm.align === 'right' ? 'flex-end' : 'flex-start',
+                                  textAlign: slideForm.align,
+                                  width: 'fit-content',
+                                  padding: '1rem'
+                                }}
+                              >
+                                 {slideForm.tagline && (
+                                   <div className="flex items-center gap-2" style={{ color: slideForm.textColor === 'custom' ? slideForm.customTextColor : (slideForm.textColor === 'dark' ? '#000000' : '#ffffff') }}>
+                                      <div className="h-px w-4 bg-current opacity-40" />
+                                      <span className="font-bold uppercase tracking-widest" style={{ fontSize: `${slideForm.taglineSize / 2}px` }}>{slideForm.tagline}</span>
+                                      <div className="h-px w-4 bg-current opacity-40" />
+                                   </div>
+                                 )}
+                                 <h4 className="font-black uppercase leading-tight" style={{ 
+                                   fontSize: `${slideForm.titleSize / 2}px`,
+                                   color: slideForm.textColor === 'custom' ? slideForm.customTextColor : (slideForm.textColor === 'dark' ? '#000000' : '#ffffff') 
+                                 }}>
+                                   {slideForm.titlePart1} {slideForm.titlePart2}
+                                 </h4>
+                                 {slideForm.cta && (
+                                   <div 
+                                     className="px-4 py-2 mt-2 rounded-[4px] text-[8px] font-black uppercase tracking-widest shadow-lg"
+                                     style={{ 
+                                       background: slideForm.textColor === 'custom' ? slideForm.buttonBg : (slideForm.textColor === 'dark' ? '#000000' : '#ffffff'),
+                                       color: slideForm.textColor === 'custom' ? slideForm.buttonText : (slideForm.textColor === 'dark' ? '#ffffff' : '#000000')
+                                     }}
+                                   >
+                                     {slideForm.cta}
+                                   </div>
+                                 )}
+                              </div>
+                           </div>
+
+                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 pointer-events-auto">
                               <label className="bg-white text-gray-900 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer shadow-xl active:scale-95 transition-transform translate-y-2 group-hover:translate-y-0 duration-300">
-                                Update Fragment
+                                Update Visual
                                 <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                               </label>
                            </div>
                          </>
                        ) : (
-                         <label className="flex flex-col items-center gap-4 cursor-pointer p-10 text-center">
+                         <label className="flex flex-col items-center gap-4 cursor-pointer p-10 text-center pointer-events-auto">
                             <div className="w-16 h-16 rounded-3xl bg-gray-900 text-white flex items-center justify-center shadow-lg shadow-gray-900/20">
                                <HiOutlineCloudUpload className="w-8 h-8" />
                             </div>

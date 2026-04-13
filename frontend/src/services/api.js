@@ -1,7 +1,28 @@
 import axios from 'axios';
 import { auth } from './firebase';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = (() => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  const hostname = window.location.hostname || 'localhost';
+  
+  // If it's a production build and we have a production URL in ENV, use it
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.match(/\d+\.\d+\.\d+\.\d+/)) {
+    return envUrl;
+  }
+
+  // Determine if we're in a local environment
+  const isLocal = hostname === 'localhost' || 
+                  hostname === '127.0.0.1' || 
+                  hostname.match(/\d+\.\d+\.\d+\.\d+/);
+                  
+  const finalBase = isLocal ? `http://${hostname}:5000` : (envUrl || '');
+  
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`%c 🛰️ API CONNECTED TO: ${finalBase}`, 'background: #000; color: #00ff00; padding: 2px; font-weight: bold;');
+  }
+  
+  return finalBase;
+})();
 
 const api = axios.create({
   baseURL: `${API_BASE}/api`,

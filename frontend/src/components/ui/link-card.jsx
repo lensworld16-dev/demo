@@ -4,53 +4,33 @@ import { cn } from '../../lib/utils';
 
 const LinkCard = React.forwardRef(
   ({ className, title, description, imageUrl, href, ...props }, ref) => {
-    // Animation variants for framer-motion
-    const cardVariants = {
-      initial: { scale: 1, y: 0 },
-      hover: {
-        scale: 1.03,
-        y: -5,
-        transition: {
-          type: 'spring',
-          stiffness: 300,
-          damping: 15,
-        },
-      },
-    };
-
     return (
       <motion.a
         ref={ref}
         href={href}
         className={cn(
-          'group relative flex w-full flex-col overflow-hidden',
-          'rounded-none border border-gray-100 bg-white shadow-sm hover:shadow-xl transition-shadow duration-500',
-          'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-900',
+          'group relative flex w-full flex-col items-center text-center gap-4',
           className
         )}
-        variants={cardVariants}
-        initial="initial"
-        whileHover="hover"
         aria-label={`Link to ${title}`}
         {...props}
       >
-        {/* Image container filling the top half */}
-        <div className="w-full aspect-square overflow-hidden bg-gray-50">
+        {/* Rounded Image container like Giva */}
+        <div className="w-full aspect-square overflow-hidden rounded-[2.5rem] bg-gray-50 shadow-sm transition-all duration-500 group-hover:shadow-xl group-hover:-translate-y-1">
           <motion.img
             src={imageUrl}
             alt={title}
-            className="h-full w-full object-cover transition-transform duration-700 ease-luxury group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-700 ease-luxury group-hover:scale-110"
           />
         </div>
 
-        {/* Text content neatly positioned below, no overlap */}
-        <div className="p-6 flex flex-col justify-center text-center">
-          <h3 className="mb-2 font-heading text-xl font-medium uppercase tracking-widest text-gray-900 border-b border-gray-200 inline-block pb-1 mx-auto">
+        {/* Title below the rounded image */}
+        <div className="flex flex-col items-center">
+          <h3 className="font-heading text-sm sm:text-lg font-medium tracking-wide text-gray-900 group-hover:text-[#C41E3A] transition-colors duration-300">
             {title}
           </h3>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-gray-400 mt-2">
-            {description}
-          </p>
+          {/* Optional small detail like Giva has tiny subtitle sometimes, but we keep it minimal */}
+          <div className="w-0 h-0.5 bg-[#C41E3A] transition-all duration-300 group-hover:w-full mt-1" />
         </div>
       </motion.a>
     );

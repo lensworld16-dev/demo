@@ -1,20 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { HiArrowRight, HiOutlineSparkles, HiOutlineTruck, HiOutlineShieldCheck, HiOutlineRefresh } from 'react-icons/hi';
+import { HiArrowRight, HiOutlineSparkles, HiOutlineTruck, HiOutlineShieldCheck, HiOutlineRefresh, HiOutlineStar } from 'react-icons/hi';
 import ProductCard from '../components/product/ProductCard';
 import { useCart } from '../context/CartContext';
 import { productAPI, settingAPI, categoryAPI } from '../services/api';
 import Skeleton from '../components/ui/Skeleton';
-import { Button } from '../components/ui/Button';
+/*  */import { Button } from '../components/ui/Button';
 import { cn } from '../lib/utils';
 import { LinkCard } from '../components/ui/link-card';
 
 const perks = [
-  { icon: HiOutlineTruck, title: 'Free Shipping', desc: 'On all orders in India' },
-  { icon: HiOutlineShieldCheck, title: 'Anti-Tarnish', desc: 'Waterproof & durable' },
-  { icon: HiOutlineRefresh, title: 'Easy Exchange', desc: '7-day hassle-free process' },
-  { icon: HiOutlineSparkles, title: 'Fine Finish', desc: '14K-18K Gold plating' },
+  { icon: HiOutlineShieldCheck, title: '100% Waterproof', desc: 'No-worry wear' },
+  { icon: HiOutlineStar, title: 'Lifetime Plating', desc: 'Resiliant luxury' },
+  { icon: HiOutlineShieldCheck, title: 'Anti-Tarnish', desc: 'Stay shining' },
+  { icon: HiOutlineSparkles, title: 'Nickel-Free', desc: 'Zero irritation' },
+  { icon: HiOutlineSparkles, title: 'Skin Friendly', desc: 'Hypoallergenic' },
 ];
 
 const heroSlides = [
@@ -125,16 +126,16 @@ export default function HomePage() {
   );
 
   return (
-    <div className="bg-white overflow-x-hidden">
+    <div className="bg-white">
       {/* Hero Section - Luxury Animated Slider */}
-      <section ref={heroRef} className="relative h-[80vh] sm:h-screen w-full overflow-hidden bg-gray-900">
-        <AnimatePresence mode="wait">
+      <section ref={heroRef} className="relative aspect-video w-full overflow-hidden bg-gray-900">
+        <AnimatePresence mode="popLayout">
           <motion.div
             key={currentSlide}
-            initial={{ opacity: 0, scale: 1.1 }}
+            initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
+            exit={{ opacity: 0, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
             className="absolute inset-0"
           >
             <img
@@ -146,153 +147,177 @@ export default function HomePage() {
           </motion.div>
         </AnimatePresence>
 
-        <div className="absolute inset-0 flex items-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-12 w-full">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentSlide}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                className={cn(
-                  "max-w-3xl",
-                  activeHeroSlides[currentSlide]?.align === 'center' ? 'mx-auto text-center' : 
-                  activeHeroSlides[currentSlide]?.align === 'right' ? 'ml-auto text-right' : 'text-left'
-                )}
-              >
+        {/* Overlay Content */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-12 w-full h-full relative">
+            <AnimatePresence mode="popLayout">
                 <motion.div
-                  variants={{
-                    initial: { opacity: 0, y: 20 },
-                    animate: { opacity: 1, y: 0 },
-                    exit: { opacity: 0, y: -20 }
+                  key={currentSlide}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  className={cn(
+                    "absolute transition-all duration-300 w-full md:w-auto p-4",
+                    activeHeroSlides[currentSlide]?.align === 'center' ? 'text-center' : 
+                    activeHeroSlides[currentSlide]?.align === 'right' ? 'text-right' : 'text-left'
+                  )}
+                  style={{
+                    top: `${activeHeroSlides[currentSlide]?.top ?? 50}%`,
+                    left: `${activeHeroSlides[currentSlide]?.left ?? 50}%`,
+                    transform: 'translate(-50%, -50%)',
+                    maxWidth: '100vw'
                   }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="mb-4 sm:mb-6 flex items-center justify-center lg:justify-start gap-4"
-                  style={{ justifyContent: activeHeroSlides[currentSlide]?.align === 'center' ? 'center' : activeHeroSlides[currentSlide]?.align === 'right' ? 'flex-end' : 'flex-start' }}
                 >
-                  <div className="h-px w-6 sm:w-8 bg-white/40" />
-                  <span className="text-[10px] sm:text-sm font-bold tracking-[0.3em] sm:tracking-[0.4em] text-white/80 uppercase">
-                    {activeHeroSlides[currentSlide]?.tagline}
-                  </span>
-                  <div className="h-px w-6 sm:w-8 bg-white/40" />
-                </motion.div>
+                  {activeHeroSlides[currentSlide]?.tagline && (
+                    <motion.div
+                      variants={{
+                        initial: { opacity: 0, y: 20 },
+                        animate: { opacity: 1, y: 0 },
+                        exit: { opacity: 0, y: -20 }
+                      }}
+                      transition={{ duration: 0.6, delay: 0.2 }}
+                      className="mb-4 sm:mb-6 flex items-center justify-center lg:justify-start gap-4"
+                      style={{ justifyContent: activeHeroSlides[currentSlide]?.align === 'center' ? 'center' : activeHeroSlides[currentSlide]?.align === 'right' ? 'flex-end' : 'flex-start' }}
+                    >
+                      <div className={cn("h-px w-6 sm:w-8", activeHeroSlides[currentSlide]?.textColor === 'dark' ? 'bg-black/20' : 'bg-white/40')} />
+                      <span 
+                        className={cn(
+                          "text-[10px] sm:text-sm font-bold tracking-[0.3em] sm:tracking-[0.4em] uppercase",
+                          activeHeroSlides[currentSlide]?.textColor === 'dark' ? 'text-gray-900' : 'text-white/80'
+                        )}
+                        style={{ 
+                          fontSize: activeHeroSlides[currentSlide]?.taglineSize ? `${activeHeroSlides[currentSlide]?.taglineSize}px` : undefined,
+                          color: activeHeroSlides[currentSlide]?.textColor === 'custom' ? activeHeroSlides[currentSlide]?.customTextColor : undefined
+                        }}
+                      >
+                        {activeHeroSlides[currentSlide]?.tagline}
+                      </span>
+                      <div className={cn("h-px w-6 sm:w-8", activeHeroSlides[currentSlide]?.textColor === 'dark' ? 'bg-black/20' : 'bg-white/40')} />
+                    </motion.div>
+                  )}
 
-                <motion.h1
-                  variants={{
-                    initial: { opacity: 0, y: 30 },
-                    animate: { opacity: 1, y: 0 },
-                    exit: { opacity: 0, y: -30 }
-                  }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                  className="text-4xl xs:text-5xl sm:text-8xl lg:text-9xl font-light text-white tracking-tighter mb-6 sm:mb-8 italic leading-[1.1] sm:leading-none"
-                >
-                  {activeHeroSlides[currentSlide]?.title || activeHeroSlides[currentSlide]?.titlePart1} <br/> 
-                  <span className="font-bold not-italic block mt-1 sm:mt-2 text-white drop-shadow-2xl">
-                    {activeHeroSlides[currentSlide]?.titleBold || activeHeroSlides[currentSlide]?.titlePart2}
-                  </span>
-                </motion.h1>
+                  {(activeHeroSlides[currentSlide]?.titlePart1 || activeHeroSlides[currentSlide]?.titlePart2) && (
+                    <motion.h1
+                      variants={{
+                        initial: { opacity: 0, y: 30 },
+                        animate: { opacity: 1, y: 0 },
+                        exit: { opacity: 0, y: -30 }
+                      }}
+                      transition={{ duration: 0.8, delay: 0.4 }}
+                      className={cn(
+                        "text-4xl xs:text-5xl sm:text-8xl lg:text-9xl font-light tracking-tighter mb-6 sm:mb-8 italic leading-[1.1] sm:leading-none",
+                        activeHeroSlides[currentSlide]?.textColor === 'dark' ? 'text-gray-900' : 'text-white'
+                      )}
+                      style={{ 
+                        fontSize: activeHeroSlides[currentSlide]?.titleSize ? `${activeHeroSlides[currentSlide]?.titleSize}px` : undefined,
+                        color: activeHeroSlides[currentSlide]?.textColor === 'custom' ? activeHeroSlides[currentSlide]?.customTextColor : undefined
+                      }}
+                    >
+                      {activeHeroSlides[currentSlide]?.titlePart1 && <>{activeHeroSlides[currentSlide]?.titlePart1} <br/></>}
+                      <span className={cn(
+                        "font-bold not-italic block mt-1 sm:mt-2",
+                        activeHeroSlides[currentSlide]?.textColor === 'dark' ? 'text-black' : 'text-white'
+                      )}>
+                        {activeHeroSlides[currentSlide]?.titlePart2}
+                      </span>
+                    </motion.h1>
+                  )}
 
-                <motion.div
-                  variants={{
-                    initial: { opacity: 0, y: 20 },
-                    animate: { opacity: 1, y: 0 },
-                    exit: { opacity: 0, y: -20 }
-                  }}
-                  transition={{ duration: 0.6, delay: 0.6 }}
-                  className="flex flex-col gap-8"
-                  style={{ alignItems: activeHeroSlides[currentSlide]?.align === 'center' ? 'center' : activeHeroSlides[currentSlide]?.align === 'right' ? 'flex-end' : 'flex-start' }}
-                >
-                  <Link to={activeHeroSlides[currentSlide]?.link || "/shop"}>
-                    <Button size="lg" className="rounded-none px-6 sm:px-16 h-12 sm:h-16 border-2 border-white/20 bg-white text-black hover:bg-transparent hover:text-white hover:border-white transition-all duration-500 uppercase tracking-[0.2em] text-[10px] sm:text-xs font-black shadow-2xl">
-                      {activeHeroSlides[currentSlide]?.cta || "Discovery Pool"}
-                    </Button>
-                  </Link>
-                </motion.div>
+                  {activeHeroSlides[currentSlide]?.cta && (
+                    <motion.div
+                      variants={{
+                        initial: { opacity: 0, y: 20 },
+                        animate: { opacity: 1, y: 0 },
+                        exit: { opacity: 0, y: -20 }
+                      }}
+                      transition={{ duration: 0.6, delay: 0.6 }}
+                      className="flex flex-col gap-8"
+                      style={{ alignItems: activeHeroSlides[currentSlide]?.align === 'center' ? 'center' : activeHeroSlides[currentSlide]?.align === 'right' ? 'flex-end' : 'flex-start' }}
+                    >
+                      <Link to={activeHeroSlides[currentSlide]?.link || "/shop"}>
+                        <Button 
+                          size="lg" 
+                          className={cn(
+                            "rounded-none px-6 sm:px-16 h-12 sm:h-16 border-2 transition-all duration-500 uppercase tracking-[0.2em] text-[10px] sm:text-xs font-black shadow-2xl",
+                            activeHeroSlides[currentSlide]?.textColor === 'dark' 
+                              ? "bg-gray-900 text-white border-gray-900 hover:bg-transparent hover:text-gray-900" 
+                              : (activeHeroSlides[currentSlide]?.textColor === 'custom' ? "" : "bg-white text-black border-white/20 hover:bg-transparent hover:text-white hover:border-white")
+                          )}
+                          style={activeHeroSlides[currentSlide]?.textColor === 'custom' ? {
+                            backgroundColor: activeHeroSlides[currentSlide]?.buttonBg,
+                            color: activeHeroSlides[currentSlide]?.buttonText,
+                            borderColor: activeHeroSlides[currentSlide]?.buttonBg
+                          } : {}}
+                        >
+                          {activeHeroSlides[currentSlide]?.cta}
+                        </Button>
+                      </Link>
+                    </motion.div>
+                  )}
               </motion.div>
             </AnimatePresence>
           </div>
         </div>
-
-        {/* Slide Indicators */}
-        <div className="absolute bottom-6 sm:bottom-12 left-1/2 -translate-x-1/2 flex gap-3 sm:gap-4 z-50">
-          {activeHeroSlides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentSlide(i)}
-              className="group flex flex-col items-center gap-1 sm:gap-2"
-            >
-              <div className={cn(
-                "h-0.5 sm:h-1 transition-all duration-500 rounded-full",
-                currentSlide === i ? "w-8 sm:w-12 bg-white" : "w-4 sm:w-6 bg-white/30 group-hover:bg-white/50"
-              )} />
-              <span className={cn(
-                "text-[8px] sm:text-[10px] font-bold tracking-widest transition-opacity duration-500",
-                currentSlide === i ? "opacity-100 text-white" : "opacity-0"
-              )}>0{i + 1}</span>
-            </button>
+      </section>      {/* Scrolling Coupon Strip */}
+      <div className="bg-gray-950 overflow-hidden py-3 sm:py-4 border-y border-white/5 relative">
+        <motion.div 
+          animate={{ x: [-1500, 0] }}
+          transition={{ 
+            duration: 25, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
+          className="flex whitespace-nowrap gap-12 sm:gap-24 items-center"
+        >
+          {[...Array(12)].map((_, i) => (
+            <div key={i} className="flex items-center gap-8 sm:gap-12">
+              <span className="text-[10px] sm:text-xs font-bold tracking-[0.3em] text-white flex items-center gap-4">
+                <span className="bg-[#C41E3A] text-white px-2 py-0.5 rounded-sm">20% OFF</span>
+                ON ORDERS OVER ₹1599
+              </span>
+              <span className="text-[10px] sm:text-xs font-light tracking-[0.4em] text-white/50 uppercase">
+                CODE: SAJHNAA20
+              </span>
+              <div className="w-1.5 h-1.5 rounded-full bg-[#C41E3A]/40" />
+            </div>
           ))}
-        </div>
-      </section>
-
-      {/* Perks Bar - Professional & Clean */}
-      <section className="py-8 sm:py-12 bg-[#F9F9FB] border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            {perks.map((perk, i) => (
-              <motion.div
-                key={perk.title}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="flex flex-col items-center text-center gap-2"
-              >
-                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white shadow-sm flex items-center justify-center shrink-0">
-                  <perk.icon className="w-4 h-4 sm:w-6 sm:h-6 text-[#C41E3A]" />
-                </div>
-                <div>
-                  <p className="text-[8px] sm:text-xs font-bold text-gray-900 uppercase tracking-wider mb-0.5">{perk.title}</p>
-                  <p className="hidden xs:block text-[7px] sm:text-[10px] text-gray-500 uppercase tracking-widest font-medium leading-tight">{perk.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
+        </motion.div>
+      </div>
       {/* Categories - Elegant Grid */}
-      <section className="pt-4 pb-10">
+      <section className="pt-6 sm:pt-12 pb-4 sm:pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-16"
+            className="mb-8 sm:mb-16"
           >
-            <h2 className="text-4xl sm:text-5xl font-light text-gray-900 mb-4 italic">
+            <h2 className="text-3xl sm:text-5xl font-light text-gray-900 mb-2 sm:mb-4 italic tracking-tight">
               Shop by <span className="font-bold not-italic">Category</span>
             </h2>
             <div className="w-20 h-0.5 bg-accent-gold mx-auto" />
           </motion.div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {categories.map((cat, i) => (
-              <motion.div
-                key={cat.id || cat.slug}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="col-span-1"
-              >
-                <LinkCard
-                  title={cat.name}
-                  description={cat.description || "Explore our exclusive collection of premium crafted jewellery."}
-                  imageUrl={cat.image}
-                  href={`/shop?category=${cat.slug}`}
-                />
-              </motion.div>
-            ))}
+          {/* Horizontal Scrollable Categories */}
+          <div className="relative">
+            <div className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-4 sm:gap-8 pb-8 scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0">
+              {categories.map((cat, i) => (
+                <motion.div
+                  key={cat.id || cat.slug}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ amount: 0.3, once: false }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                  className="snap-start shrink-0 w-[100px] sm:w-[180px]"
+                >
+                  <LinkCard
+                    title={cat.name}
+                    imageUrl={cat.image}
+                    href={`/shop?category=${cat.slug}`}
+                  />
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -301,20 +326,31 @@ export default function HomePage() {
       <section className="pt-0 pb-0 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="relative py-6 sm:py-20 mb-10 overflow-hidden"
           >
-            <span className="text-xs font-bold tracking-[0.3em] text-[#C41E3A] uppercase block mb-4">
-              {config.expertly_crafted_subtitle || "Expertly Crafted"}
-            </span>
-            <h2 className="text-4xl sm:text-6xl font-light text-gray-900 italic mb-4">
-              {config.expertly_crafted_title.split(' ').slice(0, -1).join(' ')} <span className="font-bold not-italic">{config.expertly_crafted_title.split(' ').slice(-1)}</span>
-            </h2>
-            <p className="max-w-2xl mx-auto text-gray-500 text-sm leading-relaxed uppercase tracking-widest">
-              {config.expertly_crafted_description}
-            </p>
+            {/* Darker reddish background glow - more visible focus */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#C41E3A]/10 to-transparent opacity-100 pointer-events-none" />
+            
+            <div className="relative flex items-center justify-center gap-4 sm:gap-8 px-4">
+              <motion.div 
+                initial={{ width: 0 }}
+                whileInView={{ width: '4rem' }}
+                transition={{ duration: 1, delay: 0.2 }}
+                className="hidden xs:block h-px bg-[#C41E3A]/40" 
+              />
+              <h2 className="text-3xl sm:text-6xl font-light text-gray-900 italic text-center whitespace-nowrap">
+                {config.expertly_crafted_title.split(' ').slice(0, -1).join(' ')} <span className="font-bold not-italic">{config.expertly_crafted_title.split(' ').slice(-1)}</span>
+              </h2>
+              <motion.div 
+                initial={{ width: 0 }}
+                whileInView={{ width: '4rem' }}
+                transition={{ duration: 1, delay: 0.2 }}
+                className="hidden xs:block h-px bg-[#C41E3A]/40" 
+              />
+            </div>
           </motion.div>
 
           {loading ? (
@@ -337,14 +373,40 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Perks Bar - Professional & Clean */}
+      <section className="py-4 sm:py-20 bg-white border-y border-gray-100 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex sm:grid sm:grid-cols-5 gap-6 sm:gap-8 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
+            {perks.map((perk, i) => (
+              <motion.div
+                key={perk.title}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="flex flex-col items-center text-center gap-2 shrink-0 w-[110px] sm:w-auto"
+              >
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100">
+                  <perk.icon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
+                </div>
+                <div>
+                  <p className="text-[9px] sm:text-xs font-black text-gray-900 uppercase tracking-widest mb-0.5 whitespace-nowrap">{perk.title}</p>
+                  <p className="hidden xs:block text-[8px] sm:text-[10px] text-gray-400 uppercase tracking-widest font-bold leading-tight">{perk.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Best Sellers */}
-      <section className="pt-16 pb-16 bg-white">
+      <section className="pt-4 sm:pt-16 pb-16 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col md:flex-row items-center justify-between gap-8 mb-16"
+            className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8 sm:mb-16"
           >
             <div className="text-center md:text-left">
               <span className="text-xs font-bold tracking-widest text-[#C41E3A] uppercase block mb-3">

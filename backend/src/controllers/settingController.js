@@ -16,6 +16,7 @@ export async function updateSettings(req, res, next) {
   try {
     const { id } = req.params;
     const { value } = req.body;
+    console.log(`[SETTINGS] Updating key: ${id}, Payload size: ${JSON.stringify(value).length} chars`);
     
     const { rows } = await query(
       'INSERT INTO site_settings (key, value, updated_at) VALUES ($1, $2, now()) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now() RETURNING *',

@@ -21,7 +21,8 @@ export default function MainLayout() {
       <ScrollToTop />
       {!isAuthPage && !isAdminPage && <Navbar />}
       <motion.main
-        className={`flex-1 ${!isAuthPage && !isAdminPage ? 'pt-20 sm:pt-22 pb-20' : ''}`}
+        key={location.pathname}
+        className={`flex-1 ${!isAuthPage && !isAdminPage ? 'pt-[56px] sm:pt-[64px] pb-20' : ''}`}
         {...pageTransition}
       >
         <div className="min-h-[60vh] flex flex-col">

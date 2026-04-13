@@ -28,6 +28,11 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
+    // Allow all origins in development and local network for easier mobile testing
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -61,8 +66,9 @@ app.use(errorHandler);
 async function start() {
   try {
     await initDatabase();
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📍 IP Access: http://${process.env.IP_ADDR || '10.62.59.224'}:${PORT}`);
       console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   } catch (err) {
