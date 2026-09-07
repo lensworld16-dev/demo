@@ -6,8 +6,9 @@ import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
 import toast from 'react-hot-toast';
 import { cn } from '../../lib/utils';
+import { getProductReviewStats } from '../../data/reviewsData';
 
-export default function ProductCard({ product, aspect = "portrait", glowEffect = true, className }) {
+export default function ProductCard({ product, aspect = "square", glowEffect = true, className }) {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { addItem } = useCart();
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function ProductCard({ product, aspect = "portrait", glowEffect =
   const discount = getDiscountPercent(product.price, product.compare_price);
   const isWishlisted = isInWishlist(product.id);
   const imageUrl = product.thumbnail || product.images?.[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';
+  const reviewStats = getProductReviewStats(product?.id);
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -64,8 +66,8 @@ export default function ProductCard({ product, aspect = "portrait", glowEffect =
   };
 
   const aspectClasses = {
-    portrait: "aspect-[3/4]",
-    landscape: "aspect-[4/3]",
+    portrait: "aspect-square",
+    landscape: "aspect-square",
     square: "aspect-square",
   };
 
@@ -75,8 +77,8 @@ export default function ProductCard({ product, aspect = "portrait", glowEffect =
         ref={cardRef}
         className={cn(
           "fashion-card relative overflow-hidden rounded-xl bg-white flex flex-col h-full",
-          glowEffect && "hover:shadow-2xl",
-          "border border-gray-100 transition-all duration-[400ms] ease-out"
+          glowEffect && "hover:shadow-xl hover:shadow-pink-200/50",
+          "border border-pink-100/80 hover:border-pink-200 transition-all duration-[400ms] ease-out"
         )}
         style={{ 
           transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) scale(${isHovered ? 1.02 : 1})`,
@@ -99,7 +101,7 @@ export default function ProductCard({ product, aspect = "portrait", glowEffect =
               aria-label="Toggle Wishlist"
             >
               {isWishlisted ? (
-                <HiHeart className="w-5 h-5 text-[#C41E3A]" />
+                <HiHeart className="w-5 h-5 text-[#DE5D83]" />
               ) : (
                 <HiOutlineHeart className="w-5 h-5" />
               )}
@@ -116,19 +118,13 @@ export default function ProductCard({ product, aspect = "portrait", glowEffect =
                 loading="lazy"
               />
             </div>
-            
-            {/* Badges */}
-            <div className="absolute top-4 left-4 z-10 flex flex-col gap-3">
-              {product.is_featured && (
-                <div className="fashion-card-badge animate-float px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] bg-[hsl(39,100%,67%)] text-[hsl(220,26%,18%)] shadow-sm relative top-0 right-0 transform-none">
-                  Highlight
-                </div>
-              )}
-              {discount > 0 && (
-                <div className="fashion-card-badge px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] bg-[#C41E3A] text-white shadow-sm relative top-0 right-0 transform-none">
-                  -{discount}%
-                </div>
-              )}
+
+            {/* Rating Pill - Compact corner pill (4.8 ★ | 61) */}
+            <div className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 bg-white/95 backdrop-blur-xs text-gray-800 text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-md flex items-center gap-1 z-10 shadow-xs border border-black/5 select-none pointer-events-none leading-none">
+              <span>{reviewStats.averageRating}</span>
+              <span className="text-amber-500 text-[8px] sm:text-[9px]">★</span>
+              <span className="text-gray-300 font-normal">|</span>
+              <span className="text-gray-500 font-medium">{reviewStats.totalReviews}</span>
             </div>
           </Link>
 
@@ -159,7 +155,7 @@ export default function ProductCard({ product, aspect = "portrait", glowEffect =
             <div className="mt-3 sm:mt-5 flex flex-col sm:flex-row gap-2 w-full animate-fadeIn" style={{ animationDelay: '0.3s' }}>
               <button 
                 onClick={handleAddToCart}
-                className="relative rounded-full px-2 sm:px-4 py-2 sm:py-2.5 flex-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-widest border border-gray-200 text-gray-900 hover:bg-gray-50 flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-300"
+                className="relative rounded-full px-2 sm:px-4 py-2 sm:py-2.5 flex-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-widest border border-pink-200 text-gray-800 hover:bg-pink-50/70 hover:border-pink-300 hover:text-[#DE5D83] flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-300"
               >
                 <HiOutlineShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" />
                 Add to Bag
@@ -167,7 +163,7 @@ export default function ProductCard({ product, aspect = "portrait", glowEffect =
               
               <button 
                 onClick={handleBuyNow}
-                className="shine-effect relative rounded-full px-2 sm:px-4 py-2 sm:py-2.5 flex-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-widest bg-[#C41E3A] hover:bg-[#8B0000] text-white overflow-hidden hover:animate-shine flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-300 shadow-md hover:shadow-lg"
+                className="shine-effect relative rounded-full px-2 sm:px-4 py-2 sm:py-2.5 flex-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-widest bg-[#E05A75] hover:bg-[#D44E6A] text-white overflow-hidden hover:animate-shine flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-300 shadow-md shadow-pink-200/80 hover:shadow-lg hover:shadow-pink-300"
               >
                 <HiLightningBolt className="w-3 h-3 sm:w-4 sm:h-4" />
                 Buy Now

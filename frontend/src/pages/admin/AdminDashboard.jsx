@@ -83,7 +83,7 @@ export default function AdminDashboard() {
                  <HiOutlineMenu className="w-6 h-6" />
                </button>
 
-               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gray-900 flex items-center justify-center text-white font-black text-lg sm:text-xl italic shadow-lg shadow-gray-200">S</div>
+               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gray-900 flex items-center justify-center text-white font-black text-lg sm:text-xl italic shadow-lg shadow-gray-200">A</div>
                <div className="hidden xs:block">
                   <h1 className="text-xs sm:text-sm font-black text-gray-900 uppercase tracking-tighter leading-none">Command Center</h1>
                   <p className="text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Management Protocol</p>
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
           <div className="h-full lg:h-auto overflow-y-auto lg:overflow-visible lg:sticky lg:top-28 p-6 lg:p-0">
             {/* Mobile Header in Drawer */}
             <div className="flex items-center justify-between mb-8 lg:hidden">
-               <span className="text-xl font-black tracking-widest text-gray-900 italic">SAJHNAA</span>
+               <span className="text-xl font-black tracking-widest text-gray-900 italic">ARNIKA</span>
                <button onClick={() => setIsSidebarOpen(false)} className="p-2 bg-gray-900 text-white rounded-xl">
                  <HiOutlineX className="w-5 h-5" />
                </button>

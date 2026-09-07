@@ -23,7 +23,7 @@ async function setup() {
     const defaultConfig = {
       expertly_crafted_title: "The Art of Adornment",
       expertly_crafted_subtitle: "Expertly Crafted",
-      expertly_crafted_description: "Every piece of Sajhnaa jewellery is a testament to timeless elegance and modern craftsmanship. We use only the finest materials to ensure your shine never fades.",
+      expertly_crafted_description: "Every piece of Arnika jewellery is a testament to timeless elegance and modern craftsmanship. We use only the finest materials to ensure your shine never fades.",
       best_sellers_title: "Our Best Sellers",
       best_sellers_subtitle: "Most Loved Pieces"
     };

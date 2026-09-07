@@ -43,6 +43,10 @@ const router = createBrowserRouter([
         element: <GuestRoute><AuthPage /></GuestRoute>,
       },
       {
+        path: 'admin/login',
+        element: <GuestRoute><AuthPage /></GuestRoute>,
+      },
+      {
         path: 'checkout',
         element: <ProtectedRoute><CheckoutPage /></ProtectedRoute>,
       },

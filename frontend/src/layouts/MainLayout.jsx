@@ -17,7 +17,7 @@ export default function MainLayout() {
   const isAdminPage = location.pathname.startsWith('/admin');
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-[#FFF8F9] text-gray-900 selection:bg-pink-100 selection:text-pink-900">
       <ScrollToTop />
       {!isAuthPage && !isAdminPage && <Navbar />}
       <motion.main

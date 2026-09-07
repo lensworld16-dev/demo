@@ -82,6 +82,11 @@ export default function CartPage() {
                     <Link to={`/product/${item.slug}`}>
                       <h3 className="font-medium text-gray-900 uppercase tracking-wide text-sm">{item.name}</h3>
                     </Link>
+                    {item.isGift && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#DE5D83] bg-pink-50 border border-pink-200 px-2 py-0.5 rounded-md mt-1.5">
+                        🎁 Gift Wrapped (+₹50)
+                      </span>
+                    )}
                   </div>
 
                   <div className="mt-4 flex items-center justify-between">
@@ -103,7 +108,12 @@ export default function CartPage() {
                     </div>
                     
                     {/* Price */}
-                    <p className="font-semibold text-gray-900">{formatPrice(item.price * item.quantity)}</p>
+                    <div className="text-right">
+                      <p className="font-semibold text-gray-900">{formatPrice((parseFloat(item.price) + (item.isGift ? 50 : 0)) * item.quantity)}</p>
+                      {item.isGift && (
+                        <p className="text-[10px] text-gray-400">incl. ₹50 gift wrap</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </motion.div>

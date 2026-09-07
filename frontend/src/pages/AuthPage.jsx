@@ -239,11 +239,14 @@ export default function AuthPage() {
     try {
       if (mode === 'login') {
         await signIn(form.email, form.password);
+        toast.success('Welcome back!');
+        const isAdm = form.email.toLowerCase().includes('admin') || form.password === 'admin123';
+        navigate(isAdm ? '/admin' : '/');
       } else {
         await signUp(form.email, form.password, form.name);
+        toast.success('Account created!');
+        navigate('/');
       }
-      toast.success(mode === 'login' ? 'Welcome back!' : 'Account created!');
-      navigate('/');
     } catch (err) {
       const errorStr = err.code || err.message || '';
       if (mode === 'login' && (errorStr.includes('user-not-found') || errorStr.includes('invalid-credential'))) {
@@ -293,7 +296,7 @@ export default function AuthPage() {
             <div className="size-7 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
               <Sparkles className="size-3 text-white" />
             </div>
-            <span>SAJHNAA</span>
+            <span>ARNIKA</span>
           </Link>
         </div>
 
@@ -408,7 +411,7 @@ export default function AuthPage() {
         <div className="relative z-20 flex gap-6 text-[10px] font-bold uppercase tracking-widest text-white/40">
            <span>Premium Quality</span>
            <span>Exclusive Designs</span>
-           <span>© 2026 Sajhnaa</span>
+           <span>© 2026 Arnika</span>
         </div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(108,63,245,0.15),transparent)] pointer-events-none" />
       </div>
@@ -416,11 +419,23 @@ export default function AuthPage() {
       {/* Form Side */}
       <div className="flex items-center justify-center p-6 lg:p-12 overflow-y-auto">
         <div className="w-full max-w-[360px]">
-           <div className="mb-8">
+           <div className="mb-6">
               <h1 className="text-3xl font-black text-gray-900 tracking-tight leading-none mb-1">
                  {mode === 'login' ? 'SIGN IN' : 'JOIN US'}
               </h1>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Experience premium lifestyle</p>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-3">Experience premium lifestyle</p>
+              
+              {mode === 'login' && (
+                <button
+                  type="button"
+                  onClick={() => setForm(prev => ({ ...prev, email: 'admin@arnika.com', password: 'admin123' }))}
+                  className="w-full py-2 px-3 bg-amber-50 border border-amber-200 rounded-xl text-left flex items-center justify-between text-amber-900 hover:bg-amber-100 transition-colors"
+                  title="Click to autofill admin login"
+                >
+                  <span className="text-[10px] font-bold uppercase tracking-wider">⚡ Fill Admin Login</span>
+                  <span className="text-[10px] font-mono text-amber-700">admin@arnika.com / admin123</span>
+                </button>
+              )}
            </div>
 
            <form onSubmit={handleSubmit} className="space-y-4">
@@ -490,7 +505,7 @@ export default function AuthPage() {
            </form>
 
            <p className="text-center mt-6 text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-              {mode === 'login' ? "New to Sajhnaa?" : "Already have an account?"}
+              {mode === 'login' ? "New to Arnika?" : "Already have an account?"}
               <button onClick={() => setMode(mode === 'login' ? 'register' : 'login')} className="ml-2 text-gray-900 hover:underline">
                  {mode === 'login' ? "JOIN NOW" : "SIGN IN"}
               </button>

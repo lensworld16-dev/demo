@@ -14,7 +14,7 @@ pool.query('SELECT now()', (err, res) => {
   if (err) {
     console.error('Connection Error:', err.message);
   } else {
-    console.log('SUCCESS! Connected to sajhnaa_db at:', res.rows[0].now);
+    console.log('SUCCESS! Connected to arnika_db at:', res.rows[0].now);
   }
   pool.end();
 });

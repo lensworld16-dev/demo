@@ -22,26 +22,29 @@ const heroSlides = [
   {
     image: "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?auto=format&fit=crop&q=80&w=2000",
     tagline: "ANTI-TARNISH & WATERPROOF",
-    title: "Timeless",
-    titleBold: "Elegance",
+    titlePart1: "Timeless",
+    titlePart2: "Elegance",
     cta: "Shop Jewelry",
-    align: "center"
+    align: "center",
+    link: "/shop"
   },
   {
     image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=2000",
     tagline: "18K GOLD PLATED",
-    title: "Bold &",
-    titleBold: "Sophisticated",
+    titlePart1: "Bold &",
+    titlePart2: "Sophisticated",
     cta: "Best Sellers",
-    align: "left"
+    align: "left",
+    link: "/shop?bestseller=true"
   },
   {
-    image: "https://images.unsplash.com/photo-1611085583191-a3b1ae84fd9b?auto=format&fit=crop&q=80&w=2000",
+    image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=2000",
     tagline: "LUXURY ESSENTIALS",
-    title: "Adorn",
-    titleBold: "Yourself",
-    cta: "Summer Collection",
-    align: "right"
+    titlePart1: "Adorn",
+    titlePart2: "Yourself",
+    cta: "Royal Collection",
+    align: "right",
+    link: "/shop?category=necklaces"
   }
 ];
 
@@ -54,7 +57,7 @@ export default function HomePage() {
   const [config, setConfig] = useState({
     expertly_crafted_title: "The Art of Adornment",
     expertly_crafted_subtitle: "Expertly Crafted",
-    expertly_crafted_description: "Every piece of Sajhnaa jewellery is a testament to timeless elegance and modern craftsmanship.",
+    expertly_crafted_description: "Every piece of Arnika jewellery is a testament to timeless elegance and modern craftsmanship.",
     best_sellers_title: "Our Best Sellers",
     best_sellers_subtitle: "Most Loved Pieces"
   });
@@ -126,7 +129,7 @@ export default function HomePage() {
   );
 
   return (
-    <div className="bg-white">
+    <div className="bg-[#FFF9FA] text-gray-900 selection:bg-pink-100 selection:text-pink-900">
       {/* Hero Section - Luxury Animated Slider */}
       <section ref={heroRef} className="relative aspect-video w-full overflow-hidden bg-gray-900">
         <AnimatePresence mode="popLayout">
@@ -148,8 +151,8 @@ export default function HomePage() {
         </AnimatePresence>
 
         {/* Overlay Content */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-12 w-full h-full relative">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-12 w-full h-full relative pointer-events-none">
             <AnimatePresence mode="popLayout">
                 <motion.div
                   key={currentSlide}
@@ -157,7 +160,7 @@ export default function HomePage() {
                   animate="animate"
                   exit="exit"
                   className={cn(
-                    "absolute transition-all duration-300 w-full md:w-auto p-4",
+                    "absolute transition-all duration-300 w-full md:w-auto p-4 pointer-events-auto z-30",
                     activeHeroSlides[currentSlide]?.align === 'center' ? 'text-center' : 
                     activeHeroSlides[currentSlide]?.align === 'right' ? 'text-right' : 'text-left'
                   )}
@@ -196,7 +199,7 @@ export default function HomePage() {
                     </motion.div>
                   )}
 
-                  {(activeHeroSlides[currentSlide]?.titlePart1 || activeHeroSlides[currentSlide]?.titlePart2) && (
+                  {(activeHeroSlides[currentSlide]?.titlePart1 || activeHeroSlides[currentSlide]?.title || activeHeroSlides[currentSlide]?.titlePart2 || activeHeroSlides[currentSlide]?.titleBold) && (
                     <motion.h1
                       variants={{
                         initial: { opacity: 0, y: 30 },
@@ -213,12 +216,14 @@ export default function HomePage() {
                         color: activeHeroSlides[currentSlide]?.textColor === 'custom' ? activeHeroSlides[currentSlide]?.customTextColor : undefined
                       }}
                     >
-                      {activeHeroSlides[currentSlide]?.titlePart1 && <>{activeHeroSlides[currentSlide]?.titlePart1} <br/></>}
+                      {(activeHeroSlides[currentSlide]?.titlePart1 || activeHeroSlides[currentSlide]?.title) && (
+                        <>{activeHeroSlides[currentSlide]?.titlePart1 || activeHeroSlides[currentSlide]?.title} <br/></>
+                      )}
                       <span className={cn(
                         "font-bold not-italic block mt-1 sm:mt-2",
                         activeHeroSlides[currentSlide]?.textColor === 'dark' ? 'text-black' : 'text-white'
                       )}>
-                        {activeHeroSlides[currentSlide]?.titlePart2}
+                        {activeHeroSlides[currentSlide]?.titlePart2 || activeHeroSlides[currentSlide]?.titleBold}
                       </span>
                     </motion.h1>
                   )}
@@ -231,14 +236,17 @@ export default function HomePage() {
                         exit: { opacity: 0, y: -20 }
                       }}
                       transition={{ duration: 0.6, delay: 0.6 }}
-                      className="flex flex-col gap-8"
+                      className="flex flex-col gap-8 pointer-events-auto"
                       style={{ alignItems: activeHeroSlides[currentSlide]?.align === 'center' ? 'center' : activeHeroSlides[currentSlide]?.align === 'right' ? 'flex-end' : 'flex-start' }}
                     >
-                      <Link to={activeHeroSlides[currentSlide]?.link || "/shop"}>
+                      <Link 
+                        to={activeHeroSlides[currentSlide]?.link || "/shop"} 
+                        className="inline-block pointer-events-auto cursor-pointer"
+                      >
                         <Button 
                           size="lg" 
                           className={cn(
-                            "rounded-none px-6 sm:px-16 h-12 sm:h-16 border-2 transition-all duration-500 uppercase tracking-[0.2em] text-[10px] sm:text-xs font-black shadow-2xl",
+                            "rounded-none px-6 sm:px-16 h-12 sm:h-16 border-2 transition-all duration-500 uppercase tracking-[0.2em] text-[10px] sm:text-xs font-black shadow-2xl cursor-pointer pointer-events-auto select-none",
                             activeHeroSlides[currentSlide]?.textColor === 'dark' 
                               ? "bg-gray-900 text-white border-gray-900 hover:bg-transparent hover:text-gray-900" 
                               : (activeHeroSlides[currentSlide]?.textColor === 'custom' ? "" : "bg-white text-black border-white/20 hover:bg-transparent hover:text-white hover:border-white")
@@ -276,105 +284,60 @@ export default function HomePage() {
                 ON ORDERS OVER ₹1599
               </span>
               <span className="text-[10px] sm:text-xs font-light tracking-[0.4em] text-white/50 uppercase">
-                CODE: SAJHNAA20
+                CODE: ARNIKA20
               </span>
               <div className="w-1.5 h-1.5 rounded-full bg-[#C41E3A]/40" />
             </div>
           ))}
         </motion.div>
-      </div>
+      </div>      {/* Categories - Elegant Grid */}
       {/* Categories - Elegant Grid */}
-      <section className="pt-6 sm:pt-12 pb-4 sm:pb-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+      <section className="pt-8 pb-6 sm:pt-12 sm:pb-8 relative overflow-hidden">
+        {/* Soft romantic blush gradient background with ambient pink glows */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FFF0F4]/90 via-[#FFF7F9] to-[#FFF0F4]/70 pointer-events-none" />
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-pink-200/50 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-rose-200/40 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-8 sm:mb-16"
+            className="mb-5 sm:mb-8"
           >
-            <h2 className="text-3xl sm:text-5xl font-light text-gray-900 mb-2 sm:mb-4 italic tracking-tight">
+            <span className="text-[10px] sm:text-xs font-bold tracking-[0.3em] text-[#DE5D83] uppercase block mb-1.5">
+              Curated Collections
+            </span>
+            <h2 className="text-2xl sm:text-4xl font-light text-gray-900 mb-2 italic tracking-tight">
               Shop by <span className="font-bold not-italic">Category</span>
             </h2>
-            <div className="w-20 h-0.5 bg-accent-gold mx-auto" />
+            <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#DE5D83] to-transparent mx-auto" />
           </motion.div>
 
-          {/* Horizontal Scrollable Categories */}
-          <div className="relative">
-            <div className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-4 sm:gap-8 pb-8 scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0">
-              {categories.map((cat, i) => (
-                <motion.div
-                  key={cat.id || cat.slug}
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ amount: 0.3, once: false }}
-                  transition={{ duration: 0.6, ease: "easeInOut" }}
-                  className="snap-start shrink-0 w-[100px] sm:w-[180px]"
-                >
-                  <LinkCard
-                    title={cat.name}
-                    imageUrl={cat.image}
-                    href={`/shop?category=${cat.slug}`}
-                  />
-                </motion.div>
-              ))}
-            </div>
+          {/* Categories Grid - All 6 visible on mobile (3x2) and 6 on desktop */}
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-5 max-w-5xl mx-auto">
+            {categories.map((cat, i) => (
+              <motion.div
+                key={cat.id || cat.slug}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ amount: 0.2, once: true }}
+                transition={{ duration: 0.5, delay: i * 0.05 }}
+                className="w-full"
+              >
+                <LinkCard
+                  title={cat.name}
+                  imageUrl={cat.image}
+                  href={`/shop?category=${cat.slug}`}
+                />
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Expertly Crafted Selection */}
-      <section className="pt-0 pb-0 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="relative py-6 sm:py-20 mb-10 overflow-hidden"
-          >
-            {/* Darker reddish background glow - more visible focus */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#C41E3A]/10 to-transparent opacity-100 pointer-events-none" />
-            
-            <div className="relative flex items-center justify-center gap-4 sm:gap-8 px-4">
-              <motion.div 
-                initial={{ width: 0 }}
-                whileInView={{ width: '4rem' }}
-                transition={{ duration: 1, delay: 0.2 }}
-                className="hidden xs:block h-px bg-[#C41E3A]/40" 
-              />
-              <h2 className="text-3xl sm:text-6xl font-light text-gray-900 italic text-center whitespace-nowrap">
-                {config.expertly_crafted_title.split(' ').slice(0, -1).join(' ')} <span className="font-bold not-italic">{config.expertly_crafted_title.split(' ').slice(-1)}</span>
-              </h2>
-              <motion.div 
-                initial={{ width: 0 }}
-                whileInView={{ width: '4rem' }}
-                transition={{ duration: 1, delay: 0.2 }}
-                className="hidden xs:block h-px bg-[#C41E3A]/40" 
-              />
-            </div>
-          </motion.div>
-
-          {loading ? (
-             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="space-y-4">
-                  <Skeleton className="aspect-square w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-              {featured.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Perks Bar - Professional & Clean */}
-      <section className="py-4 sm:py-20 bg-white border-y border-gray-100 overflow-hidden">
+      {/* Perks Bar - Luxury Rose Gold & Blush */}
+      <section className="py-6 sm:py-8 bg-gradient-to-r from-[#FFF5F7] via-[#FFEBF0] to-[#FFF5F7] border-y border-pink-200/60 overflow-hidden shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex sm:grid sm:grid-cols-5 gap-6 sm:gap-8 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
             {perks.map((perk, i) => (
@@ -384,14 +347,14 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="flex flex-col items-center text-center gap-2 shrink-0 w-[110px] sm:w-auto"
+                className="flex flex-col items-center text-center gap-2.5 shrink-0 w-[110px] sm:w-auto"
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100">
-                  <perk.icon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white shadow-xs flex items-center justify-center shrink-0 border border-pink-200/70 hover:scale-110 transition-transform duration-300">
+                  <perk.icon className="w-5 h-5 text-[#DE5D83]" />
                 </div>
                 <div>
                   <p className="text-[9px] sm:text-xs font-black text-gray-900 uppercase tracking-widest mb-0.5 whitespace-nowrap">{perk.title}</p>
-                  <p className="hidden xs:block text-[8px] sm:text-[10px] text-gray-400 uppercase tracking-widest font-bold leading-tight">{perk.desc}</p>
+                  <p className="hidden xs:block text-[8px] sm:text-[10px] text-gray-500 uppercase tracking-widest font-bold leading-tight">{perk.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -400,25 +363,26 @@ export default function HomePage() {
       </section>
 
       {/* Best Sellers */}
-      <section className="pt-4 sm:pt-16 pb-16 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <section className="py-8 sm:py-12 bg-gradient-to-b from-[#FFF5F7]/80 via-white to-[#FFF0F4]/50 overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-pink-200/30 rounded-full blur-3xl pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8 sm:mb-16"
+            className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 sm:mb-8"
           >
             <div className="text-center md:text-left">
-              <span className="text-xs font-bold tracking-widest text-[#C41E3A] uppercase block mb-3">
+              <span className="text-xs font-bold tracking-widest text-[#DE5D83] uppercase block mb-1.5">
                 {config.best_sellers_subtitle || "Most Loved Pieces"}
               </span>
-              <h2 className="text-4xl sm:text-5xl font-light text-gray-900 italic">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light text-gray-900 italic">
                 {config.best_sellers_title.split(' ').slice(0, -2).join(' ')} <span className="font-bold not-italic">{config.best_sellers_title.split(' ').slice(-2).join(' ')}</span>
               </h2>
             </div>
-            <Link to="/shop">
-              <Button variant="outline" className="rounded-none border-gray-900 uppercase tracking-widest text-[10px] font-bold py-4 px-10">
-                View All Products
+            <Link to="/shop?bestseller=true">
+              <Button variant="outline" className="rounded-full border-pink-300 bg-white hover:bg-pink-50 text-gray-900 uppercase tracking-widest text-[10px] font-bold py-3.5 px-8 shadow-sm">
+                View All Best Sellers
               </Button>
             </Link>
           </motion.div>
@@ -427,7 +391,7 @@ export default function HomePage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="space-y-4">
-                  <Skeleton className="aspect-square w-full" />
+                  <Skeleton className="aspect-square w-full rounded-3xl" />
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
                 </div>
@@ -446,39 +410,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Brand Ethos */}
-      <section className="py-0 bg-white">
-        <div className="max-w-5xl mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-             <HiOutlineSparkles className="w-12 h-12 text-[#C41E3A] mx-auto mb-8" />
-             <h2 className="text-4xl font-light text-gray-900 mb-8 italic">
-                Jewellery that stays <span className="font-bold not-italic">Gold forever.</span>
-             </h2>
-             <p className="text-gray-500 text-lg leading-relaxed mb-12">
-                Our demi-fine jewellery is crafted with 18K gold plating on surgical-grade stainless steel, ensuring it's 100% waterproof, sweatproof, and anti-tarnish. Luxury made accessible for your everyday moments.
-             </p>
-             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
-                <div>
-                   <p className="text-2xl font-bold text-gray-900 mb-1">100%</p>
-                   <p className="text-[10px] uppercase tracking-widest text-gray-500">Waterproof</p>
-                </div>
-                <div>
-                   <p className="text-2xl font-bold text-gray-900 mb-1">Lifetime</p>
-                   <p className="text-[10px] uppercase tracking-widest text-gray-500">Anti-Tarnish</p>
-                </div>
-                <div>
-                   <p className="text-2xl font-bold text-gray-900 mb-1">Nickel-Free</p>
-                   <p className="text-[10px] uppercase tracking-widest text-gray-500">Skin Friendly</p>
-                </div>
-             </div>
-          </motion.div>
-        </div>
-      </section>
     </div>
   );
 }
-

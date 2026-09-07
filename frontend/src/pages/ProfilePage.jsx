@@ -72,7 +72,7 @@ export default function ProfilePage() {
 
     setUploadingAvatar(true);
     try {
-      const data = await imageAPI.upload(file, 'sajhnaa/users');
+      const data = await imageAPI.upload(file, 'arnika/users');
       const photo_url = data.image.secure_url;
       await userAPI.updateProfile({ ...profileData, photo_url });
       setProfileData(prev => ({ ...prev, photo_url }));

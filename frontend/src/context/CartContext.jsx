@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 
 const CartContext = createContext(null);
 
-const CART_KEY = 'sajhnaa_cart';
+const CART_KEY = 'arnika_cart';
 
 function loadCart() {
   try {
@@ -25,17 +25,17 @@ export function CartProvider({ children }) {
     saveCart(items);
   }, [items]);
 
-  const addItem = (product, quantity = 1) => {
+  const addItem = (product, quantity = 1, options = {}) => {
     let wasExisting = false;
     setItems((prev) => {
       const existing = prev.find((i) => i.id === product.id);
       if (existing) {
         wasExisting = true;
         return prev.map((i) =>
-          i.id === product.id ? { ...i, quantity: i.quantity + quantity } : i
+          i.id === product.id ? { ...i, quantity: i.quantity + quantity, ...options } : i
         );
       }
-      return [...prev, { ...product, quantity }];
+      return [...prev, { ...product, quantity, ...options }];
     });
     
     // Show toast after the state update logic
@@ -63,7 +63,7 @@ export function CartProvider({ children }) {
   };
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
-  const subtotal = items.reduce((sum, i) => sum + parseFloat(i.price) * i.quantity, 0);
+  const subtotal = items.reduce((sum, i) => sum + (parseFloat(i.price) + (i.isGift ? (i.giftWrapPrice || 50) : 0)) * i.quantity, 0);
 
   return (
     <CartContext.Provider value={{

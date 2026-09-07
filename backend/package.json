@@ -1,7 +1,7 @@
 {
-  "name": "sajhnaa-backend",
+  "name": "arnika-backend",
   "version": "1.0.0",
-  "description": "SAJHNAA eCommerce Backend API",
+  "description": "ARNIKA eCommerce Backend API",
   "main": "src/server.js",
   "type": "module",
   "scripts": {

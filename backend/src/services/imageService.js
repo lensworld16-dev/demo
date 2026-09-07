@@ -1,7 +1,7 @@
 import cloudinary from '../config/cloudinary.js';
 import { query } from '../config/database.js';
 
-export async function uploadImage(fileBuffer, folder = 'sajhnaa/products') {
+export async function uploadImage(fileBuffer, folder = 'arnika/products') {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {

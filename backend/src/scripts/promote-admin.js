@@ -2,7 +2,7 @@ import pg from 'pg';
 const { Pool } = pg;
 
 const pool = new Pool({
-  connectionString: 'postgresql://sajhnaa:J1s2fGnGEsqt0d2mI77Xlg@rapid-elk-14391.jxf.gcp-asia-south1.cockroachlabs.cloud:26257/sajhnaa_db?sslmode=verify-full'
+  connectionString: process.env.DATABASE_URL || 'postgresql://arnika:password@localhost:5432/arnika_db'
 });
 
 async function promote() {

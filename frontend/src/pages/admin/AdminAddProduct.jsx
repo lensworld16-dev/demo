@@ -35,7 +35,7 @@ export default function AdminAddProduct() {
     setUploading(true);
     try {
       for (const file of files) {
-        const data = await imageAPI.upload(file, 'sajhnaa/products');
+        const data = await imageAPI.upload(file, 'arnika/products');
         setImages((prev) => [...prev, data.image]);
       }
       toast.success('Image(s) uploaded');

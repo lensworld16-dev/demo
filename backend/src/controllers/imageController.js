@@ -6,7 +6,7 @@ export async function handleUpload(req, res, next) {
       return res.status(400).json({ error: 'No image file provided' });
     }
     console.log('📸 Uploading image to Cloudinary...');
-    const folder = req.body.folder || 'sajhnaa/products';
+    const folder = req.body.folder || 'arnika/products';
     const image = await uploadImage(req.file.buffer, folder);
     console.log('✅ Image uploaded successfully:', image.url);
     res.status(201).json({ success: true, image });

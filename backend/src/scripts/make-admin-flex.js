@@ -3,7 +3,7 @@ import pg from 'pg';
 const { Pool } = pg;
 
 // Use the connection string from env if available, else fallback to the one in promote-admin
-const connectionString = process.env.DATABASE_URL || 'postgresql://sajhnaa:J1s2fGnGEsqt0d2mI77Xlg@rapid-elk-14391.jxf.gcp-asia-south1.cockroachlabs.cloud:26257/sajhnaa_db?sslmode=verify-full';
+const connectionString = process.env.DATABASE_URL || 'postgresql://arnika:password@localhost:5432/arnika_db';
 
 const pool = new Pool({ connectionString });
 

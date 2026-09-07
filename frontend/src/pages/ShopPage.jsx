@@ -14,7 +14,7 @@ const sortOptions = [
   { value: 'name', label: 'Name A-Z' },
 ];
 
-const categoryOptions = ['All', 'Electronics', 'Fashion', 'Home & Living', 'Accessories'];
+const categoryOptions = ['All', 'Necklaces', 'Rings', 'Earrings', 'Bracelets', 'Anklets', 'Pendants'];
 
 export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -28,6 +28,7 @@ export default function ShopPage() {
   const search = searchParams.get('search') || '';
   const sort = searchParams.get('sort') || 'newest';
   const featured = searchParams.get('featured') || '';
+  const bestseller = searchParams.get('bestseller') || '';
   const page = parseInt(searchParams.get('page') || '1');
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export default function ShopPage() {
         if (category && category !== 'All') params.category = category;
         if (search) params.search = search;
         if (featured) params.featured = featured;
+        if (bestseller) params.bestseller = bestseller;
 
         const data = await productAPI.getAll(params);
         setProducts(data.products || []);
@@ -57,7 +59,7 @@ export default function ShopPage() {
       }
     }
     load();
-  }, [category, search, sort, featured, page]);
+  }, [category, search, sort, featured, bestseller, page]);
 
   const updateParam = (key, value) => {
     const params = new URLSearchParams(searchParams);
@@ -68,36 +70,39 @@ export default function ShopPage() {
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div className="min-h-screen bg-[#FFF8F9] text-gray-900 selection:bg-pink-100 selection:text-pink-900 pb-16">
+      {/* Header with Luxury Pink Gradient & Ambient Glow */}
+      <div className="bg-gradient-to-b from-[#FFF0F4]/90 via-[#FFF7F9] to-[#FFF8F9] border-b border-pink-200/70 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-pink-200/30 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-rose-200/20 rounded-full blur-2xl pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2"
+            className="text-3xl sm:text-5xl font-light text-gray-900 mb-2 italic tracking-tight"
           >
-            {search ? `Search: "${search}"` : featured ? 'Featured Products' : 'All Products'}
+            {search ? `Search: "${search}"` : featured ? 'Featured Collections' : bestseller ? 'Best Sellers' : 'Shop Collections'}
           </motion.h1>
-          <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">{pagination.total || products.length} products</p>
+          <p className="text-[#DE5D83] text-[11px] font-bold uppercase tracking-[0.25em]">{pagination.total || products.length} Curated Pieces</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 font-body">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 font-body">
         {/* Filters Bar */}
         <div className="flex flex-wrap items-center gap-3 mb-8">
-          {/* Category Pills */}
+          {/* Category Pills - Luxury Pink Accents */}
           <div className="hidden sm:flex items-center gap-2 flex-wrap">
             {categoryOptions.map((cat) => (
               <motion.button
                 key={cat}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => updateParam('category', cat === 'All' ? '' : cat.toLowerCase().replace(/ & /g, '-'))}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-200 ${
                   (!category && cat === 'All') || category === cat.toLowerCase().replace(/ & /g, '-')
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-[#E05A75] text-white shadow-md shadow-pink-200/80 border border-[#E05A75]'
+                    : 'bg-white/90 border border-pink-200/80 text-gray-700 hover:bg-pink-50 hover:border-pink-300 hover:text-[#DE5D83]'
                 }`}
               >
                 {cat}
@@ -111,7 +116,7 @@ export default function ShopPage() {
           <select
             value={sort}
             onChange={(e) => updateParam('sort', e.target.value)}
-            className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            className="px-4 py-2.5 bg-white border border-pink-200/80 rounded-xl text-xs sm:text-sm font-medium text-gray-800 shadow-2xs hover:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-200"
           >
             {sortOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -121,9 +126,9 @@ export default function ShopPage() {
           {/* Mobile Filter Button */}
           <button
             onClick={() => setFilterOpen(!filterOpen)}
-            className="sm:hidden flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700"
+            className="sm:hidden flex items-center gap-2 px-4 py-2.5 bg-white border border-pink-200/80 rounded-xl text-xs sm:text-sm font-medium text-gray-800 shadow-2xs hover:bg-pink-50"
           >
-            <HiOutlineAdjustments className="w-4 h-4" />
+            <HiOutlineAdjustments className="w-4 h-4 text-[#DE5D83]" />
             Filter
           </button>
         </div>
@@ -142,10 +147,10 @@ export default function ShopPage() {
                   <button
                     key={cat}
                     onClick={() => { updateParam('category', cat === 'All' ? '' : cat.toLowerCase().replace(/ & /g, '-')); setFilterOpen(false); }}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all ${
                       (!category && cat === 'All') || category === cat.toLowerCase().replace(/ & /g, '-')
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-gray-100 text-gray-600'
+                        ? 'bg-[#E05A75] text-white shadow-sm shadow-pink-200'
+                        : 'bg-white border border-pink-200 text-gray-700 hover:bg-pink-50'
                     }`}
                   >
                     {cat}
@@ -160,13 +165,13 @@ export default function ShopPage() {
         {(search || category) && (
           <div className="flex items-center gap-2 mb-6 flex-wrap">
             {search && (
-              <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-full text-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-pink-100/70 border border-pink-200 text-[#DE5D83] rounded-full text-xs font-semibold">
                 Search: {search}
                 <button onClick={() => updateParam('search', '')}><HiOutlineX className="w-3.5 h-3.5" /></button>
               </span>
             )}
             {category && (
-              <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-full text-sm capitalize">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-pink-100/70 border border-pink-200 text-[#DE5D83] rounded-full text-xs font-semibold capitalize">
                 {category.replace(/-/g, ' ')}
                 <button onClick={() => updateParam('category', '')}><HiOutlineX className="w-3.5 h-3.5" /></button>
               </span>
@@ -179,7 +184,7 @@ export default function ShopPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-x-6 sm:gap-y-10">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="space-y-4">
-                <Skeleton className="aspect-[4/5] w-full rounded-none" />
+                <Skeleton className="aspect-square w-full rounded-xl" />
                 <Skeleton className="h-4 w-3/4 rounded-none" />
                 <Skeleton className="h-4 w-1/2 rounded-none" />
               </div>

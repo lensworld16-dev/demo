@@ -203,7 +203,7 @@ export default function AdminHomePage() {
 
     setUploadingImage(true);
     try {
-      const data = await imageAPI.upload(file, 'sajhnaa/homepage');
+      const data = await imageAPI.upload(file, 'arnika/homepage');
       setSlideForm(prev => ({ 
         ...prev, 
         image: data.image.secure_url,

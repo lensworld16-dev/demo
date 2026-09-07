@@ -9,9 +9,12 @@ import { cn } from '../../lib/utils';
 
 const navLinks = [
   { path: '/', label: 'Home' },
+  { path: '/shop?category=necklaces', label: 'Necklaces' },
   { path: '/shop?category=rings', label: 'Rings' },
   { path: '/shop?category=earrings', label: 'Earrings' },
-  { path: '/shop?category=necklaces', label: 'Necklaces' },
+  { path: '/shop?category=bracelets', label: 'Bracelets' },
+  { path: '/shop?category=anklets', label: 'Anklets' },
+  { path: '/shop?category=pendants', label: 'Pendants' },
   { path: '/shop', label: 'All' },
 ];
 
@@ -72,15 +75,27 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14 sm:h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
-              <motion.span
-                whileHover={{ scale: 1.05 }}
-                className="text-lg sm:text-xl font-bold tracking-[0.3em] transition-colors text-gray-900"
+            {/* Left: Mobile Menu Trigger + Brand Logo */}
+            <div className="flex items-center gap-1.5 sm:gap-3">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="md:hidden p-1.5 -ml-1 rounded-full hover:bg-gray-100 transition-colors text-gray-800"
+                aria-label="Toggle Menu"
               >
-                SAJHNAA
-              </motion.span>
-            </Link>
+                {mobileOpen ? <HiOutlineX className="w-5 h-5" /> : <HiOutlineMenu className="w-5 h-5" />}
+              </motion.button>
+
+              <Link to="/" className="flex items-center py-1">
+                <motion.img
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ duration: 0.2 }}
+                  src="/logo/arnika-logo.png"
+                  alt="ARNIKA"
+                  className="h-7 sm:h-8 md:h-9 w-auto object-contain"
+                />
+              </Link>
+            </div>
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-10">
@@ -98,15 +113,6 @@ export default function Navbar() {
 
             {/* Actions */}
             <div className="flex items-center gap-1 sm:gap-3">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setSearchOpen(true)}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                title="Search"
-              >
-                <HiOutlineSearch className="w-5 h-5 text-gray-700" />
-              </motion.button>
 
               {user && (
                 <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
@@ -190,14 +196,6 @@ export default function Navbar() {
                   </Link>
                 )}
               </div>
-
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setMobileOpen(!mobileOpen)}
-                className="md:hidden p-2 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                {mobileOpen ? <HiOutlineX className="w-5 h-5" /> : <HiOutlineMenu className="w-5 h-5" />}
-              </motion.button>
             </div>
           </div>
         </div>
