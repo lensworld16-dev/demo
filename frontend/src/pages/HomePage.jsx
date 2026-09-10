@@ -53,6 +53,8 @@ export default function HomePage() {
   const [activeHeroSlides, setActiveHeroSlides] = useState(heroSlides);
   const [featured, setFeatured] = useState([]);
   const [bestSellers, setBestSellers] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [activeTab, setActiveTab] = useState('all');
   const [categories, setCategories] = useState([]);
   const [config, setConfig] = useState({
     expertly_crafted_title: "The Art of Adornment",
@@ -77,9 +79,10 @@ export default function HomePage() {
   useEffect(() => {
     async function load() {
       try {
-        const [featData, bestData, heroData, craftData, catData] = await Promise.all([
+        const [featData, bestData, allData, heroData, craftData, catData] = await Promise.all([
           productAPI.getAll({ featured: 'true', limit: 8 }),
-          productAPI.getAll({ bestseller: 'true', limit: 4 }),
+          productAPI.getAll({ bestseller: 'true', limit: 8 }),
+          productAPI.getAll({ limit: 50 }),
           settingAPI.get('hero_slides'),
           settingAPI.get('expertly_crafted'),
           categoryAPI.getAll()
@@ -87,6 +90,7 @@ export default function HomePage() {
         
         setFeatured(featData.products || []);
         setBestSellers(bestData.products || []);
+        setAllProducts(allData.products || []);
         setCategories(catData.categories || []);
         
         const ensureArray = (val) => {
@@ -363,17 +367,17 @@ export default function HomePage() {
       </section>
 
       {/* Best Sellers */}
-      <section className="py-8 sm:py-12 bg-gradient-to-b from-[#FFF5F7]/80 via-white to-[#FFF0F4]/50 overflow-hidden relative">
+      <section className="py-8 sm:py-14 bg-gradient-to-b from-[#FFF5F7]/80 via-white to-[#FFF0F4]/50 overflow-hidden relative">
         <div className="absolute top-0 right-0 w-80 h-80 bg-pink-200/30 rounded-full blur-3xl pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 sm:mb-8"
+            className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 sm:mb-10"
           >
             <div className="text-center md:text-left">
-              <span className="text-xs font-bold tracking-widest text-[#DE5D83] uppercase block mb-1.5">
+              <span className="text-[10px] sm:text-xs font-bold tracking-widest text-[#DE5D83] uppercase block mb-1.5">
                 {config.best_sellers_subtitle || "Most Loved Pieces"}
               </span>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light text-gray-900 italic">
@@ -381,7 +385,7 @@ export default function HomePage() {
               </h2>
             </div>
             <Link to="/shop?bestseller=true">
-              <Button variant="outline" className="rounded-full border-pink-300 bg-white hover:bg-pink-50 text-gray-900 uppercase tracking-widest text-[10px] font-bold py-3.5 px-8 shadow-sm">
+              <Button variant="outline" className="rounded-full border-pink-300 bg-white hover:bg-pink-50 text-gray-900 uppercase tracking-widest text-[10px] font-bold py-3.5 px-8 shadow-xs">
                 View All Best Sellers
               </Button>
             </Link>
@@ -407,6 +411,188 @@ export default function HomePage() {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Featured Collection / New Arrivals */}
+      <section className="py-10 sm:py-16 bg-[#FFF9FA] overflow-hidden relative border-t border-pink-100">
+        <div className="absolute top-1/2 left-0 w-72 h-72 bg-rose-200/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 sm:mb-10"
+          >
+            <div className="text-center md:text-left">
+              <span className="text-[10px] sm:text-xs font-bold tracking-[0.25em] text-[#DE5D83] uppercase block mb-1.5">
+                {config.expertly_crafted_subtitle || "Exclusive Creations"}
+              </span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light text-gray-900 italic">
+                {config.expertly_crafted_title.split(' ').slice(0, -1).join(' ')} <span className="font-bold not-italic">{config.expertly_crafted_title.split(' ').slice(-1)}</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-500 mt-2 max-w-xl">
+                {config.expertly_crafted_description || "Handcrafted antique gold jewellery finished with authentic temple motifs and uncut stones."}
+              </p>
+            </div>
+            <Link to="/shop?featured=true">
+              <Button variant="outline" className="rounded-full border-pink-300 bg-white hover:bg-pink-50 text-gray-900 uppercase tracking-widest text-[10px] font-bold py-3.5 px-8 shadow-xs">
+                Explore Featured
+              </Button>
+            </Link>
+          </motion.div>
+
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="aspect-square w-full rounded-3xl" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+              {featured.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Explore All Products - Interactive Category Tabs */}
+      <section className="py-12 sm:py-20 bg-white overflow-hidden relative border-t border-pink-100/70">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center max-w-2xl mx-auto mb-8 sm:mb-12"
+          >
+            <span className="text-[10px] sm:text-xs font-bold tracking-[0.3em] text-[#DE5D83] uppercase block mb-2">
+              Timeless Treasures
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-light text-gray-900 italic tracking-tight mb-3">
+              Explore Our <span className="font-bold not-italic">Complete Collection</span>
+            </h2>
+            <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-[#DE5D83] to-transparent mx-auto mb-4" />
+            <p className="text-xs sm:text-sm text-gray-500">
+              Browse authentic handcrafted jewellery curated for weddings, festive occasions, and daily elegance.
+            </p>
+          </motion.div>
+
+          {/* Interactive Category Tabs */}
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-8 sm:mb-12">
+            {[
+              { id: 'all', label: 'All Designs' },
+              ...categories.map(c => ({ id: c.slug, label: c.name }))
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 cursor-pointer",
+                    isActive
+                      ? "bg-gray-900 text-white shadow-md shadow-black/10 scale-105"
+                      : "bg-[#FFF5F7] text-gray-600 hover:bg-pink-100/70 hover:text-gray-900 border border-pink-100"
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Products Grid based on selected tab */}
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="aspect-square w-full rounded-3xl" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6"
+              >
+                {(activeTab === 'all'
+                  ? allProducts.slice(0, 8)
+                  : allProducts.filter(p => (p.category || '').toLowerCase() === activeTab.toLowerCase()).slice(0, 8)
+                ).map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                  />
+                ))}
+              </motion.div>
+            </AnimatePresence>
+          )}
+
+          {/* View Entire Shop CTA */}
+          <div className="mt-10 sm:mt-14 text-center">
+            <Link to={activeTab === 'all' ? '/shop' : `/shop?category=${activeTab}`}>
+              <Button
+                size="lg"
+                className="rounded-full px-8 sm:px-12 py-4 bg-gray-900 text-white hover:bg-black uppercase tracking-[0.2em] text-[11px] font-black shadow-xl hover:shadow-2xl transition-all duration-300"
+              >
+                View Complete Shop ({allProducts.length} Items)
+                <HiArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Brand Trust & Luxury Assurance Banner */}
+      <section className="py-12 sm:py-16 bg-gradient-to-b from-white to-[#FFF5F7] border-t border-pink-100">
+        <div className="max-w-5xl mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <HiOutlineSparkles className="w-10 h-10 text-[#DE5D83] mx-auto mb-4" />
+            <h2 className="text-3xl sm:text-4xl font-light text-gray-900 mb-4 italic">
+              Jewellery that stays <span className="font-bold not-italic">Gold forever.</span>
+            </h2>
+            <p className="text-gray-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto mb-10">
+              Our demi-fine jewellery is crafted with 18K antique gold plating on premium hypoallergenic brass and surgical steel, ensuring it is 100% waterproof, sweatproof, and anti-tarnish.
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+              <div className="bg-white p-5 rounded-2xl border border-pink-100 shadow-xs">
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">100%</p>
+                <p className="text-[10px] uppercase tracking-widest text-[#DE5D83] font-bold">Waterproof</p>
+              </div>
+              <div className="bg-white p-5 rounded-2xl border border-pink-100 shadow-xs">
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Lifetime</p>
+                <p className="text-[10px] uppercase tracking-widest text-[#DE5D83] font-bold">Anti-Tarnish</p>
+              </div>
+              <div className="bg-white p-5 rounded-2xl border border-pink-100 shadow-xs">
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Skin-Safe</p>
+                <p className="text-[10px] uppercase tracking-widest text-[#DE5D83] font-bold">Nickel-Free</p>
+              </div>
+              <div className="bg-white p-5 rounded-2xl border border-pink-100 shadow-xs">
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Velvet Box</p>
+                <p className="text-[10px] uppercase tracking-widest text-[#DE5D83] font-bold">Luxury Packaging</p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
