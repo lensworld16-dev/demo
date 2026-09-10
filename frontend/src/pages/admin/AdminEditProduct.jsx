@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { HiOutlinePhotograph, HiOutlineX } from 'react-icons/hi';
-import { productAPI, imageAPI } from '../../services/api';
+import { productAPI } from '../../services/api';
 import Button from '../../components/ui/Button';
+import ProductImageManager from '../../components/admin/ProductImageManager';
 import toast from 'react-hot-toast';
 
 export default function AdminEditProduct() {
@@ -11,7 +11,6 @@ export default function AdminEditProduct() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-  const [uploading, setUploading] = useState(false);
   const [images, setImages] = useState([]);
   const [form, setForm] = useState({
     name: '',
@@ -44,7 +43,7 @@ export default function AdminEditProduct() {
           is_active: p.is_active !== undefined ? p.is_active : true
         });
         // Convert URLs to objects for consistent preview
-        setImages(p.images ? p.images.map(url => ({ secure_url: url })) : []);
+        setImages(p.images ? p.images.map(url => (typeof url === 'string' ? { secure_url: url } : url)) : []);
       } catch (err) {
         toast.error("Failed to load product");
         navigate('/admin/products');
@@ -60,33 +59,11 @@ export default function AdminEditProduct() {
     setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
   };
 
-  const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
-
-    setUploading(true);
-    try {
-      for (const file of files) {
-        const data = await imageAPI.upload(file, 'arnika/products');
-        setImages((prev) => [...prev, data.image]);
-      }
-      toast.success('Image(s) uploaded');
-    } catch (err) {
-      toast.error('Upload failed');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const removeImage = (idx) => {
-    setImages((prev) => prev.filter((_, i) => i !== idx));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const imageUrls = images.map((img) => img.secure_url);
+      const imageUrls = images.map((img) => (typeof img === 'string' ? img : img.secure_url)).filter(Boolean);
       await productAPI.update(id, {
         ...form,
         price: parseFloat(form.price),
@@ -113,44 +90,7 @@ export default function AdminEditProduct() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Product Images</h2>
-
-          <div className="flex flex-wrap gap-4 mb-4">
-            {images.map((img, i) => (
-              <div key={i} className="relative w-28 h-28 rounded-xl overflow-hidden bg-gray-100 group">
-                <img src={img.secure_url} alt="" className="w-full h-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => removeImage(i)}
-                  className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <HiOutlineX className="w-3 h-3" />
-                </button>
-              </div>
-            ))}
-
-            <label className={`w-28 h-28 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors ${uploading ? 'opacity-50' : ''}`}>
-              {uploading ? (
-                <svg className="animate-spin h-6 w-6 text-gray-400" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-              ) : (
-                <>
-                  <HiOutlinePhotograph className="w-6 h-6 text-gray-400 mb-1" />
-                  <span className="text-xs text-gray-400">Upload</span>
-                </>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                disabled={uploading}
-                className="hidden"
-              />
-            </label>
-          </div>
+          <ProductImageManager images={images} onChange={setImages} />
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 p-6">

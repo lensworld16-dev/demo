@@ -68,15 +68,69 @@ export const categoryAPI = {
   delete: async (id) => ({ success: true, id }),
 };
 
-// Image APIs (Client-side mock with object URLs or fallback)
+// Image APIs (Persistent Base64 compression for client-side storage)
 export const imageAPI = {
   upload: async (file, folder) => {
-    try {
-      const url = URL.createObjectURL(file);
-      return { success: true, url, secure_url: url };
-    } catch {
-      return { success: true, url: 'https://images.unsplash.com/photo-1599643478518-a96b1f3e1ac9?auto=format&fit=crop&q=80&w=800' };
-    }
+    return new Promise((resolve) => {
+      if (!file) {
+        resolve({ success: false, error: 'No file provided' });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            let { width, height } = img;
+            const maxDim = 1200;
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+            resolve({
+              success: true,
+              url: dataUrl,
+              secure_url: dataUrl,
+              image: { url: dataUrl, secure_url: dataUrl },
+            });
+          } catch {
+            resolve({
+              success: true,
+              url: e.target.result,
+              secure_url: e.target.result,
+              image: { url: e.target.result, secure_url: e.target.result },
+            });
+          }
+        };
+        img.onerror = () => {
+          resolve({
+            success: true,
+            url: e.target.result,
+            secure_url: e.target.result,
+            image: { url: e.target.result, secure_url: e.target.result },
+          });
+        };
+        img.src = e.target.result;
+      };
+      reader.onerror = () => {
+        resolve({
+          success: false,
+          error: 'Failed to read file',
+        });
+      };
+      reader.readAsDataURL(file);
+    });
   },
   getAll: async (folder) => ({ success: true, images: [] }),
   delete: async (id) => ({ success: true }),

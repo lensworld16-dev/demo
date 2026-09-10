@@ -7,6 +7,8 @@ import { useCart } from '../context/CartContext';
 import { productAPI } from '../services/api';
 import Skeleton from '../components/ui/Skeleton';
 
+import { initialProducts } from '../data/data';
+
 const sortOptions = [
   { value: 'newest', label: 'Newest' },
   { value: 'price-asc', label: 'Price: Low to High' },
@@ -14,7 +16,7 @@ const sortOptions = [
   { value: 'name', label: 'Name A-Z' },
 ];
 
-const categoryOptions = ['All', 'Necklaces', 'Rings', 'Earrings', 'Bracelets', 'Anklets', 'Pendants'];
+const categoryOptions = ['All', 'Necklaces', 'Pendants', 'Earrings', 'Bracelets'];
 
 export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -45,15 +47,7 @@ export default function ShopPage() {
         setProducts(data.products || []);
         setPagination(data.pagination || { page: 1, pages: 1, total: 0 });
       } catch {
-        // fallback demo
-        setProducts([
-          { id: '1', name: 'Minimal Watch', slug: 'minimal-watch', price: 4999, compare_price: 7999, category: 'Accessories', is_featured: true, thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500' },
-          { id: '2', name: 'Wireless Earbuds Pro', slug: 'wireless-earbuds-pro', price: 3499, compare_price: 5999, category: 'Electronics', is_featured: true, thumbnail: 'https://images.unsplash.com/photo-1590658268037-6bf12f032f55?w=500' },
-          { id: '3', name: 'Leather Tote Bag', slug: 'leather-tote-bag', price: 2999, category: 'Fashion', thumbnail: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500' },
-          { id: '4', name: 'Smart Home Speaker', slug: 'smart-home-speaker', price: 6999, compare_price: 9999, category: 'Electronics', thumbnail: 'https://images.unsplash.com/photo-1543512214-318228f0468d?w=500' },
-          { id: '5', name: 'Premium Sunglasses', slug: 'premium-sunglasses', price: 1999, compare_price: 3499, category: 'Accessories', thumbnail: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500' },
-          { id: '6', name: 'Ceramic Vase Set', slug: 'ceramic-vase-set', price: 1499, category: 'Home & Living', thumbnail: 'https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=500' },
-        ]);
+        setProducts(initialProducts.slice(0, 12));
       } finally {
         setLoading(false);
       }

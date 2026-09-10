@@ -20,29 +20,29 @@ const perks = [
 
 const heroSlides = [
   {
-    image: "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?auto=format&fit=crop&q=80&w=2000",
-    tagline: "ANTI-TARNISH & WATERPROOF",
+    image: "/images/products/img_3404.webp",
+    tagline: "AUTHENTIC TEMPLE HERITAGE",
     titlePart1: "Timeless",
     titlePart2: "Elegance",
-    cta: "Shop Jewelry",
+    cta: "Shop Necklaces",
     align: "center",
-    link: "/shop"
+    link: "/shop?category=necklaces"
   },
   {
-    image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=2000",
-    tagline: "18K GOLD PLATED",
-    titlePart1: "Bold &",
-    titlePart2: "Sophisticated",
+    image: "/images/products/img_3441.webp",
+    tagline: "ANTIQUE GOLD & EMERALD",
+    titlePart1: "Royal &",
+    titlePart2: "Auspicious",
     cta: "Best Sellers",
     align: "left",
     link: "/shop?bestseller=true"
   },
   {
-    image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=2000",
-    tagline: "LUXURY ESSENTIALS",
+    image: "/images/products/img_3453.webp",
+    tagline: "HANDCRAFTED LUXURY",
     titlePart1: "Adorn",
     titlePart2: "Yourself",
-    cta: "Royal Collection",
+    cta: "Explore Hasli Sets",
     align: "right",
     link: "/shop?category=necklaces"
   }
@@ -314,8 +314,8 @@ export default function HomePage() {
             <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#DE5D83] to-transparent mx-auto" />
           </motion.div>
 
-          {/* Categories Grid - All 6 visible on mobile (3x2) and 6 on desktop */}
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-5 max-w-5xl mx-auto">
+          {/* Categories Grid - 4 Curated Categories */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 max-w-4xl mx-auto">
             {categories.map((cat, i) => (
               <motion.div
                 key={cat.id || cat.slug}
